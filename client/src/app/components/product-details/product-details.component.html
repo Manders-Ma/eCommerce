@@ -1,0 +1,17 @@
+<div class="detail-section">
+    <div class="container-fluid">
+        <img src="{{ product.imageUrl }}" class="detail-img">
+
+        <h3>{{ product.name }}</h3>
+        <div class="price">{{ product.unitPrice | currency: "TWD" }}</div>
+        <a *ngIf="product.unitsInStock != 0" href="#" class="btn primary-btn">Add to cart</a>
+        <a *ngIf="product.unitsInStock == 0" href="#" class="btn primary-btn" [ngClass]="{'disabled':product.unitsInStock == 0}">sold out</a>
+        <p>Quantity: {{ product.unitsInStock }}</p>
+
+        <hr>
+        <h4>Description</h4>
+        <p>{{ product.description }}</p>
+
+        <a routerLink="/products" class="mt-5">Back to Product List</a>
+    </div>
+</div>
