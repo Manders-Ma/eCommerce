@@ -12,6 +12,7 @@ export class ProductListComponent implements OnInit {
 
   products: Product[] = [];
   currentCategoryId!: number;
+  searchMode: boolean = false;
 
   // The current active route that loaded the component.
   // Useful for accessing the route parameter.
@@ -27,6 +28,28 @@ export class ProductListComponent implements OnInit {
   }
 
   listProducts() {
+    this.searchMode = this.route.snapshot.paramMap.has("keyword");
+
+    if (this.searchMode) {
+      this.handleSearchProducts();
+    }
+    else {
+      this.handleListProducts();
+    }
+  }
+  handleSearchProducts() {
+    // add ! to avoid "Type 'null' is not assignable to type 'string'."
+    const theKeyword: string = this.route.snapshot.paramMap.get("keyword")!;
+
+    // search for the products using keyword
+    this.productService.searchProducts(theKeyword).subscribe(
+      data => {
+        this.products = data;
+      }
+    )
+  }
+
+  handleListProducts() {
     // check if "id" parameter is available.
     // @snapshot -> state of route at this given moment in time.
     // @paramMap -> map of all the route parameters.
