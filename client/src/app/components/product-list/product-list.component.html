@@ -26,6 +26,31 @@
                 </div>
                 
             </div>
+
+            <!-- begin pagination component -->
+            <div class="footer-pagination">
+                <div class="row justify-content-end">
+                    <div class="col-4 d-flex align-items-center justify-content-center">
+                        <ngb-pagination [(page)]="thePageNumber"
+                                        [pageSize]="thePageSize"
+                                        [collectionSize]="theTotalElements"
+                                        [maxSize]="5"
+                                        [boundaryLinks]="true"
+                                        (pageChange)="listProducts()">
+                        </ngb-pagination>
+                    </div>
+                    <div class="col-4 d-flex align-items-center justify-content-center">
+                        <span class="ms-2">Page Size</span>
+                        <select #pageSelect (change)="updatePageSize(pageSelect.value)">
+                            <option>5</option>
+                            <option selected="true">10</option>
+                            <option>20</option>
+                            <option>50</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <!-- end pagination component -->
         </div>
     </div>
 </div>
