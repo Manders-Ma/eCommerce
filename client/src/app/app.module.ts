@@ -12,6 +12,8 @@ import { ProductCategoryMenuComponent } from './components/product-category-menu
 import { SearchComponent } from './components/search/search.component';
 import { ProductDetailsComponent } from './components/product-details/product-details.component';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { CartStatusComponent } from './components/cart-status/cart-status.component';
+import { CartService } from './services/cart.service';
 
 // 定義上到下的順序為最具體的路徑到最通用的路徑
 const routes: Routes = [
@@ -30,7 +32,8 @@ const routes: Routes = [
     ProductListComponent,
     ProductCategoryMenuComponent,
     SearchComponent,
-    ProductDetailsComponent
+    ProductDetailsComponent,
+    CartStatusComponent
   ],
   imports: [
     RouterModule.forRoot(routes),
@@ -39,7 +42,7 @@ const routes: Routes = [
     HttpClientModule,
     NgbModule
   ],
-  providers: [ProductService, provideAnimationsAsync()],
+  providers: [ProductService, CartService, provideAnimationsAsync()],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

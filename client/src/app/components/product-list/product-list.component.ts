@@ -52,7 +52,7 @@ export class ProductListComponent implements OnInit {
     // we set thePageNumber back to 1
     if (this.previousKeyword != theKeyword) {
       console.log(`Changing search keyword from ${this.previousKeyword} to ${theKeyword}.` +
-        `\tWe set thePageNumber back to 1`);
+        `\tWe set thePageNumber back to 1.`);
       this.thePageNumber = 1;
     }
 
@@ -84,7 +84,7 @@ export class ProductListComponent implements OnInit {
     // we set thePageNumber back to 1
     if (this.previousCategoryId != this.currentCategoryId) {
       console.log(`Changing catrgory id from ${this.previousCategoryId} to ${this.currentCategoryId}.`
-        + `\tWe set thePageNumber back to 1`);
+        + `\tWe set thePageNumber back to 1.`);
       this.thePageNumber = 1;
     }
 

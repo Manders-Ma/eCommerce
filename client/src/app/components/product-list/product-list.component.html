@@ -14,8 +14,12 @@
                                 <h5 class="card-title">{{ product.name }}</h5>
                             </a>
                             <p class="price">{{ product.unitPrice | currency:"TWD" }}</p>
+                            <!-- 
+                            @ 改成進去product-details頁面的時候才有加入購物車功能，在該頁面可以選定你要的數量，
+                            且有存貨數量的限制。
                             <a *ngIf="product.unitsInStock != 0" href="#" class="btn primary-btn">Add to cart</a>
                             <a *ngIf="product.unitsInStock == 0" href="#" class="btn primary-btn" [ngClass]="{'disabled':product.unitsInStock == 0}">sold out</a>
+                            -->
                         </div>
                     </div>
                 </div>

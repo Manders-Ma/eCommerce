@@ -1,11 +1,11 @@
 <div class="detail-section">
-    <div class="container-fluid">
+    <div *ngIf="product" class="container-fluid">
         <img src="{{ product.imageUrl }}" class="detail-img">
 
         <h3>{{ product.name }}</h3>
         <div class="price">{{ product.unitPrice | currency: "TWD" }}</div>
-        <a *ngIf="product.unitsInStock != 0" href="#" class="btn primary-btn">Add to cart</a>
-        <a *ngIf="product.unitsInStock == 0" href="#" class="btn primary-btn" [ngClass]="{'disabled':product.unitsInStock == 0}">sold out</a>
+        <a *ngIf="product.unitsInStock != 0" class="btn primary-btn" (click)="addToCart(product)">Add to cart</a>
+        <a *ngIf="product.unitsInStock == 0" class="btn primary-btn" [ngClass]="{'disabled':product.unitsInStock == 0}">sold out</a>
         <p>Quantity: {{ product.unitsInStock }}</p>
 
         <hr>
