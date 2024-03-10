@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import { CartItem } from '../common/cart-item';
 
 @Injectable({
@@ -11,8 +11,10 @@ export class CartService {
 
   // Subject is a subclass of Observable.
   // 我們可以使用他來推送事件。該事件將會送到所有訂閱者。
-  totalPrice: Subject<number> = new Subject<number>();
-  totalQuantity: Subject<number> = new Subject<number>();
+  // BehaviorSubject is a subclass of Subject
+  // 會推送最新事件給剛加入的訂閱者
+  totalPrice: Subject<number> = new BehaviorSubject<number>(0);
+  totalQuantity: Subject<number> = new BehaviorSubject<number>(0);
 
   constructor() { }
 
