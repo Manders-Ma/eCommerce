@@ -1,6 +1,6 @@
 <div class="cart-area d-n">
     <a routerLink="/cart-details" routerLinkActive="true">
-      <div class="total">{{ totalPrice | currency: 'TWD' }}
+      <div class="total">{{ totalPrice | currency: 'TWD': 'code': '1.0-0' }}
         <span>{{ totalQuantity }}</span>
       </div>
       <i class="fa fa-shopping-cart" aria-hidden="true"></i>

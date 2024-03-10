@@ -14,7 +14,7 @@
                     </td>
                     <td>
                         <p>{{ cartItem.name }}</p>
-                        <p>{{ cartItem.unitPrice | currency: 'TWD' }}</p>
+                        <p>{{ cartItem.unitPrice | currency: 'TWD': 'code': '1.0-0' }}</p>
                     </td>
                     <td>
                         <div class="items">
@@ -29,14 +29,17 @@
                                     {{ cartItem.quantity }}
                                 </div>
                                 <div class="col">
-                                    <button (click)="incrementQuantity(cartItem)" class="btn btn-primary btn-sm">
+                                    <button (click)="incrementQuantity(cartItem)" [disabled]="cartItem.quantity >= cartItem.unitsInStock" class="btn btn-primary btn-sm">
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
                             </div>
+                            <p *ngIf="cartItem.quantity >= cartItem.unitsInStock" class="alert alert-warning" role="alert">
+                                已達商品購買數量上限
+                            </p>
                         </div>
 
-                        <p class="mt-2">Subtotal: {{ cartItem.unitPrice * cartItem.quantity | currency: 'TWD' }}</p>
+                        <p class="mt-2">Subtotal: {{ cartItem.unitPrice * cartItem.quantity | currency: 'TWD': 'code': '1.0-0' }}</p>
                     </td>
                 </tr>
 
@@ -45,7 +48,7 @@
                     <td class="font-weight-bold">
                         <p>Total Quantity: {{ totalQuantity }}</p>
                         <p>Shipping: FREE</p>
-                        <p>Total Price: {{ totalPrice | currency: 'TWD' }}</p>
+                        <p>Total Price: {{ totalPrice | currency: 'TWD': 'code': '1.0-0' }}</p>
                     </td>
                 </tr>
             </table>
