@@ -17,6 +17,7 @@ import { CartService } from './services/cart.service';
 import { CartDetailsComponent } from './components/cart-details/cart-details.component';
 import { CheckoutComponent } from './components/checkout/checkout.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { FormService } from './services/form.service';
 
 // 定義上到下的順序為最具體的路徑到最通用的路徑
 const routes: Routes = [
@@ -50,7 +51,7 @@ const routes: Routes = [
     NgbModule,
     ReactiveFormsModule
   ],
-  providers: [ProductService, CartService, provideAnimationsAsync()],
+  providers: [ProductService, CartService, FormService, provideAnimationsAsync()],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

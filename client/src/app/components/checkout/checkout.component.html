@@ -69,9 +69,18 @@
                         <div class="col-md-2"><label>Address</label></div>
                         <div class="col-md-9">
                             <div class="input-space">
-                                <select>
-                                    <option>7-12一店</option>
+                                <select formControlName="address">
+                                    <option *ngFor="let tempShippingAddress of shippingAddress" [ngValue]="tempShippingAddress">
+                                        {{ tempShippingAddress.name }} ({{ tempShippingAddress.address }})
+                                    </option>
                                 </select>
+
+                                <div *ngIf="address?.invalid && (address?.dirty || address?.touched)"
+                                    class="alert alert-danger mt-1">
+                                    <div *ngIf="address?.errors?.['required']">
+                                        Address is required
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

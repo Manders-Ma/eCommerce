@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { CartService } from '../../services/cart.service';
+import { ShippingAddress } from '../../common/shipping-address';
+import { FormService } from '../../services/form.service';
 
 @Component({
   selector: 'app-checkout',
@@ -12,9 +14,15 @@ export class CheckoutComponent implements OnInit {
   totalPrice: number = 0;
   totalQuantity: number = 0;
 
+  shippingAddress: ShippingAddress[] = [];
+
   checkoutFormGroup!: FormGroup;
 
-  constructor(private formBuilder: FormBuilder, private cartService: CartService) { }
+  constructor(
+    private formBuilder: FormBuilder,
+    private cartService: CartService,
+    private formService: FormService
+  ) { }
 
   ngOnInit(): void {
     this.reviewCartDetails();
@@ -30,14 +38,20 @@ export class CheckoutComponent implements OnInit {
         ),
       }),
       shippingAddress: this.formBuilder.group({
-        address: ['']
+        address: new FormControl('', Validators.required)
       })
     });
+
+    this.formService.getShippingAddress().subscribe(
+      data => {
+        this.shippingAddress = data;
+      }
+    );
   }
 
   onSubmit() {
     console.log("Handling the submit button");
-    console.log(this.checkoutFormGroup.get('customer')?.value);
+    console.log(this.checkoutFormGroup.value);
 
     if (this.checkoutFormGroup.invalid) {
       this.checkoutFormGroup.markAllAsTouched();
@@ -53,6 +67,7 @@ export class CheckoutComponent implements OnInit {
   get firstName() { return this.checkoutFormGroup.get("customer.firstName"); }
   get lastName() { return this.checkoutFormGroup.get("customer.lastName"); }
   get email() { return this.checkoutFormGroup.get("customer.email"); }
+  get address() { return this.checkoutFormGroup.get("shippingAddress.address"); }
 
   // custom validator
   notOnlyWhitespace(control: FormControl): ValidationErrors {
