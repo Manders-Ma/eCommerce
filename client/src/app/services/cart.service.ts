@@ -9,6 +9,8 @@ export class CartService {
 
   cartItems: CartItem[] = [];
 
+  storage: Storage = sessionStorage;
+
   // Subject is a subclass of Observable.
   // 我們可以使用他來推送事件。該事件將會送到所有訂閱者。
   // BehaviorSubject is a subclass of Subject
@@ -16,7 +18,18 @@ export class CartService {
   totalPrice: Subject<number> = new BehaviorSubject<number>(0);
   totalQuantity: Subject<number> = new BehaviorSubject<number>(0);
 
-  constructor() { }
+  constructor() {
+
+    // read data from storage
+    let data = JSON.parse(this.storage.getItem("cartItems")!);
+
+    if (data != null) {
+      this.cartItems = data;
+
+      // compute totals based on the data that is read from storage
+      this.computeCartTotals();
+    }
+  }
 
   addToCart(theCartItem: CartItem) {
 
@@ -63,6 +76,13 @@ export class CartService {
     // all subscribers will receive the new datas
     this.totalPrice.next(totalPriceValue);
     this.totalQuantity.next(totalQuantityValue);
+
+    // persist cart data
+    this.persistCartItems();
+  }
+
+  persistCartItems() {
+    this.storage.setItem("cartItems", JSON.stringify(this.cartItems));
   }
 
   decrementQuantity(theCartItem: CartItem) {
