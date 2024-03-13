@@ -17,11 +17,12 @@ import com.manders.ecommerce.entity.Customer;
 @CrossOrigin("http://localhost:4200")
 public interface CustomerRepository extends JpaRepository<Customer, Long>{
   
-  @Query(value = "select c from Customer c where c.firstName=:firstName and c.lastName=:lastName and c.email=:email")
+  @Query(value = "select c from Customer c where c.firstName=:firstName and c.lastName=:lastName and c.email=:email and c.memberId=:memberId")
   Customer findCustomer(
       @Param("firstName") String firstName, 
       @Param("lastName") String lastName, 
-      @Param("email") String email
+      @Param("email") String email, 
+      @Param("memberId") Long memberId
   );
   
 }

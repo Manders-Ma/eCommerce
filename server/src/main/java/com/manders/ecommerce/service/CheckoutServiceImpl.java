@@ -5,9 +5,11 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.manders.ecommerce.dao.CustomerRepository;
+import com.manders.ecommerce.dao.MemberRepository;
 import com.manders.ecommerce.dto.Purchase;
 import com.manders.ecommerce.dto.PurchaseResponse;
 import com.manders.ecommerce.entity.Customer;
+import com.manders.ecommerce.entity.Member;
 import com.manders.ecommerce.entity.Order;
 import com.manders.ecommerce.entity.OrderItem;
 import jakarta.transaction.Transactional;
@@ -18,10 +20,16 @@ public class CheckoutServiceImpl implements CheckoutService {
   @Autowired
   private CustomerRepository customerRepository;
   
+  @Autowired
+  private MemberRepository memberRepository;
+  
   
   @Override
   @Transactional
   public PurchaseResponse placeOrder(Purchase purchase) {
+    
+    // retrieve the member from dto
+    Member member = memberRepository.findByEmail(purchase.getMember().getEmail());
     
     // retrieve the order info from dto
     Order order = purchase.getOrder();
@@ -41,7 +49,8 @@ public class CheckoutServiceImpl implements CheckoutService {
     Customer customerFromDB = customerRepository.findCustomer(
         purchase.getCustomer().getFirstName(), 
         purchase.getCustomer().getLastName(), 
-        purchase.getCustomer().getEmail()
+        purchase.getCustomer().getEmail(), 
+        member.getMemberId()
     );
     Customer customer;
     if (customerFromDB == null) {
@@ -52,6 +61,9 @@ public class CheckoutServiceImpl implements CheckoutService {
     }
     
     customer.add(order);
+    
+    // populate customer with member id
+    customer.setMemberId(member.getMemberId());
     
     // save to the DB
     customerRepository.save(customer);

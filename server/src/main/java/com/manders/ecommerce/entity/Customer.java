@@ -38,6 +38,9 @@ public class Customer {
   @CreationTimestamp
   private Date dateCreated;
   
+  @Column(name = "member_id")
+  private Long memberId;
+  
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer")
   private Set<Order> orders = new HashSet<>();
   
