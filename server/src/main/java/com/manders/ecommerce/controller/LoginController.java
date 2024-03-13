@@ -3,6 +3,7 @@ package com.manders.ecommerce.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +20,9 @@ public class LoginController {
   @Autowired
   private MemberRepository memberRepository;
   
+  @Autowired
+  private PasswordEncoder passwordEncoder;
+  
   @PostMapping("/register")
   public ResponseEntity<String> registerUser(@RequestBody Member member) {
     
@@ -31,6 +35,8 @@ public class LoginController {
     
     try {
       member.setRole("user");
+      String hashPwd = passwordEncoder.encode(member.getPassword());
+      member.setPassword(hashPwd);
       memberRepository.save(member);
       response = ResponseEntity.status(HttpStatus.CREATED).body("成功註冊");
     } catch (Exception e) {

@@ -15,7 +15,7 @@ import com.manders.ecommerce.entity.Member;
 
 
 @Service
-public class eCommerceUserDetails implements UserDetailsService {
+public class ECommerceUserDetails implements UserDetailsService {
   
   @Autowired
   private MemberRepository memberRepository;
