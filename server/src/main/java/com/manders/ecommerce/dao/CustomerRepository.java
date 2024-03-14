@@ -3,7 +3,6 @@ package com.manders.ecommerce.dao;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import com.manders.ecommerce.entity.Customer;
 
 
@@ -14,7 +13,6 @@ import com.manders.ecommerce.entity.Customer;
  * 即可完成save order to DB對資料庫的所有操作。
 */
 
-@CrossOrigin("http://localhost:4200")
 public interface CustomerRepository extends JpaRepository<Customer, Long>{
   
   @Query(value = "select c from Customer c where c.firstName=:firstName and c.lastName=:lastName and c.email=:email and c.memberId=:memberId")
