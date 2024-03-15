@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
 import { Order } from '../../common/order';
 import { OrderItem } from '../../common/order-item';
 import { Purchase } from '../../common/purchase';
+import { CustomValidators } from '../../validators/custom-validators';
 
 @Component({
   selector: 'app-checkout',
@@ -37,9 +38,9 @@ export class CheckoutComponent implements OnInit {
     this.checkoutFormGroup = this.formBuilder.group({
       customer: this.formBuilder.group({
         firstName: new FormControl('',
-          [Validators.required, Validators.minLength(2), this.notOnlyWhitespace]),
+          [Validators.required, Validators.minLength(2), CustomValidators.notOnlyWhitespace]),
         lastName: new FormControl('',
-          [Validators.required, Validators.minLength(2), this.notOnlyWhitespace]),
+          [Validators.required, Validators.minLength(2), CustomValidators.notOnlyWhitespace]),
         email: new FormControl('',
           [Validators.required, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')]
         ),
@@ -133,15 +134,4 @@ export class CheckoutComponent implements OnInit {
   get lastName() { return this.checkoutFormGroup.get("customer.lastName"); }
   get email() { return this.checkoutFormGroup.get("customer.email"); }
   get address() { return this.checkoutFormGroup.get("shippingAddress.address"); }
-
-  // custom validator
-  notOnlyWhitespace(control: FormControl): ValidationErrors {
-    // check if string only contains whitespace
-    if (control.value != null && control.value.trim().length === 0) {
-      return { 'notOnlyWhitespace': true };
-    }
-    else {
-      return {};
-    }
-  }
 }
