@@ -9,6 +9,7 @@ import { Order } from '../../common/order';
 import { OrderItem } from '../../common/order-item';
 import { Purchase } from '../../common/purchase';
 import { CustomValidators } from '../../validators/custom-validators';
+import { Member } from '../../common/member';
 
 @Component({
   selector: 'app-checkout',
@@ -16,6 +17,8 @@ import { CustomValidators } from '../../validators/custom-validators';
   styleUrl: './checkout.component.css'
 })
 export class CheckoutComponent implements OnInit {
+
+  storage: Storage = sessionStorage;
 
   totalPrice: number = 0;
   totalQuantity: number = 0;
@@ -66,6 +69,9 @@ export class CheckoutComponent implements OnInit {
       return;
     }
 
+    // set up member
+    const member: Member = JSON.parse(this.storage.getItem("memberDetails")!);
+
     // set up order
     let order: Order = new Order(this.totalQuantity, this.totalPrice);
 
@@ -77,6 +83,9 @@ export class CheckoutComponent implements OnInit {
 
     // set up purchase
     let purchase = new Purchase();
+
+    // populate purchase - member
+    purchase.member = member;
 
     // populate purchase - customer
     purchase.customer = this.checkoutFormGroup.get("customer")?.value;

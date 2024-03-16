@@ -1,0 +1,53 @@
+<div class="main-content page-m">
+    <div class="section-content section-content-p30">
+        <div class="container-fluid">
+            <div class="wrapper fadeInDown">
+                <div id="formContent">
+                  <!-- Tabs Titles -->
+                  <h2 class="active"> Sign In </h2>
+                  <h2 class="inactive underlineHover">Sign Up </h2>
+              
+                  <!-- Login Form -->
+                  <form [formGroup]="loginFormGroup" (ngSubmit)="onSubmit()">
+                    <div formGroupName="member">
+                      <!-- email -->
+                      <input formControlName="email" class="fadeIn second" type="text" placeholder="email">
+                      <div *ngIf="email?.invalid && (email?.dirty || email?.touched)"
+                      class="alert alert-danger mt-1">
+                        <div *ngIf="email?.errors?.['required']">
+                            Email is required
+                        </div>
+                        <div *ngIf="email?.errors?.['pattern']">
+                          Email must be a valid email format
+                        </div>
+                      </div>
+
+                      <!-- password -->
+                      <input formControlName="password" class="fadeIn third" type="password" placeholder="password">
+                      <div *ngIf="password?.invalid && (password?.dirty || password?.touched)"
+                      class="alert alert-danger mt-1">
+                        <div *ngIf="password?.errors?.['required']">
+                            Password is required
+                        </div>
+                      </div>
+
+                      <!-- login error -->
+                      <div *ngIf="showErrorMessage" class="alert alert-danger">
+                        Invalid Email Or Password
+                      </div>
+
+                      <!-- login button -->
+                      <input type="submit" class="fadeIn fourth" value="Log In">
+                    </div>
+                  </form>
+              
+                  <!-- Remind Passowrd -->
+                  <div id="formFooter">
+                    <a class="underlineHover" href="" style="pointer-events: none">Forgot Password?</a>
+                  </div>
+              
+                </div>
+              </div>
+        </div>
+    </div>
+</div>
