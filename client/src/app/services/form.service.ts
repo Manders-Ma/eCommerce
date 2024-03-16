@@ -1,15 +1,15 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environment.development';
 import { Observable, map } from 'rxjs';
 import { ShippingAddress } from '../common/shipping-address';
+import { AppConstants } from '../constants/app-constants';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FormService {
 
-  private shippingAddressUrl = environment.apiUrl + "/shipping-address";
+  private shippingAddressUrl = AppConstants.SHIPPING_ADDRESS_URL
 
   constructor(private httpClient: HttpClient) { }
 

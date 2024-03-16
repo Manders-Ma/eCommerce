@@ -4,6 +4,8 @@ import { Observable, tap } from 'rxjs';
 import { Member } from '../common/member';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment.development';
+import { LoginService } from '../services/login.service';
+import { AppConstants } from '../constants/app-constants';
 
 @Injectable({
   providedIn: 'root'
@@ -12,13 +14,13 @@ export class AuthInterceptorService implements HttpInterceptor {
 
   member!: Member;
 
-  constructor(private router: Router) { }
+  constructor(private router: Router, private loginService: LoginService) { }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     // Only add an access token for secured endpoints
     const securedEndpoints = [
-      "http://localhost:8080/member/details",
-      environment.apiUrl + "/checkout/purchase"
+      AppConstants.LOGIN_URL,
+      AppConstants.PRODUCT_URL
     ];
 
     if (securedEndpoints.some(url => req.urlWithParams.includes(url))) {
