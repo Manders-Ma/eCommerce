@@ -3,7 +3,9 @@ package com.manders.ecommerce.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,6 +44,19 @@ public class LoginController {
     }
     
     return response;
+  }
+  
+  
+  // spring security 會自動填入authentication參數
+  @GetMapping("/details")
+  public Member getUserDetailsAfterLogin(Authentication authentication) {
+    Member member = memberRepository.findByEmail(authentication.getName());
+    
+    if (member != null) {
+      return member;
+    }
+    
+    return null;
   }
 }
 
