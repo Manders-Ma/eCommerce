@@ -54,13 +54,13 @@ export class LoginComponent implements OnInit {
 
     this.loginService.validateLoginDetails(this.member).subscribe({
       next: response => {
-        this.member = response;
+        this.member.name = response.name;
 
         // if login success, we publish isAuthenticated is true.
         this.loginService.successAuthentication()
 
         // store member details
-        this.storage.setItem("memberDetails", JSON.stringify(this.member));
+        this.loginService.member = this.member;
 
         // store csrf token
         let xsrf = getCookie("XSRF-TOKEN")!;

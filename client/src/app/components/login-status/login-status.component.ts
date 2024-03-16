@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { LoginService } from '../../services/login.service';
+import { Member } from '../../common/member';
 
 @Component({
   selector: 'app-login-status',
@@ -19,7 +20,7 @@ export class LoginStatusComponent implements OnInit {
 
   logout() {
     this.loginService.resetAuthenticationState();
-    this.storage.setItem("memberDetails", "");
+    this.loginService.member = new Member();
     this.storage.setItem("XSRF-TOKEN", "");
   }
 }

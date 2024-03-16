@@ -12,11 +12,12 @@ export class LoginService {
   loginUrl: string = AppConstants.LOGIN_URL;
   storage: Storage = sessionStorage;
   isAuthenticated: Subject<boolean> = new BehaviorSubject<boolean>(false);
+  member: Member = new Member();
 
   constructor(private httpClient: HttpClient) { }
 
   validateLoginDetails(member: Member) {
-    this.storage.setItem("memberDetails", JSON.stringify(member));
+    this.member = member;
     return this.httpClient.get<Member>(this.loginUrl, { withCredentials: true });
   }
 

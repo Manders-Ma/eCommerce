@@ -10,6 +10,7 @@ import { OrderItem } from '../../common/order-item';
 import { Purchase } from '../../common/purchase';
 import { CustomValidators } from '../../validators/custom-validators';
 import { Member } from '../../common/member';
+import { LoginService } from '../../services/login.service';
 
 @Component({
   selector: 'app-checkout',
@@ -32,6 +33,7 @@ export class CheckoutComponent implements OnInit {
     private cartService: CartService,
     private formService: FormService,
     private checkoutService: CheckoutService,
+    private loginService: LoginService,
     private router: Router
   ) { }
 
@@ -70,7 +72,7 @@ export class CheckoutComponent implements OnInit {
     }
 
     // set up member
-    const member: Member = JSON.parse(this.storage.getItem("memberDetails")!);
+    const member: Member = this.loginService.member;
 
     // set up order
     let order: Order = new Order(this.totalQuantity, this.totalPrice);

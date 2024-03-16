@@ -20,13 +20,13 @@ export class AuthInterceptorService implements HttpInterceptor {
     // Only add an access token for secured endpoints
     const securedEndpoints = [
       AppConstants.LOGIN_URL,
-      AppConstants.PRODUCT_URL
+      AppConstants.PURCHASE_URL
     ];
 
     if (securedEndpoints.some(url => req.urlWithParams.includes(url))) {
       let httpHeaders = new HttpHeaders();
-      if (sessionStorage.getItem('memberDetails')) {
-        this.member = JSON.parse(sessionStorage.getItem('memberDetails')!);
+      if (this.loginService.member) {
+        this.member = this.loginService.member;
       }
       if (this.member && this.member.password && this.member.email) {
         httpHeaders = httpHeaders.append('Authorization', 'Basic ' + window.btoa(this.member.email + ':' + this.member.password));
