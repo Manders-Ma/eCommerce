@@ -2,6 +2,8 @@ package com.manders.ecommerce.entity;
 
 import java.util.Date;
 import org.hibernate.annotations.CreationTimestamp;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -25,6 +27,7 @@ public class Member {
   @Column(name = "email")
   private String email;
   
+  @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
   @Column(name = "password")
   private String password;
   

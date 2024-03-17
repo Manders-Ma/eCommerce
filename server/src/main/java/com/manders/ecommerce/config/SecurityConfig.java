@@ -73,10 +73,10 @@ public class SecurityConfig {
        * 此外定義哪些API需要通過驗證。
       */
       .authorizeHttpRequests((requests) -> requests
-          .requestMatchers(HttpMethod.POST, "/api/products/**", "/api/product-category/**", "/api/shipping-address/**").denyAll()
-          .requestMatchers(HttpMethod.PUT, "/api/products/**", "/api/product-category/**", "/api/shipping-address/**").denyAll()
-          .requestMatchers(HttpMethod.DELETE, "/api/products/**", "/api/product-category/**", "/api/shipping-address/**").denyAll()
-          .requestMatchers(HttpMethod.PATCH, "/api/products/**", "/api/product-category/**", "/api/shipping-address/**").denyAll()
+          .requestMatchers(HttpMethod.POST, "/api/products/**", "/api/product-category/**", "/api/shipping-address/**").hasRole("ADMIN")
+          .requestMatchers(HttpMethod.PUT, "/api/products/**", "/api/product-category/**", "/api/shipping-address/**").hasRole("ADMIN")
+          .requestMatchers(HttpMethod.DELETE, "/api/products/**", "/api/product-category/**", "/api/shipping-address/**").hasRole("ADMIN")
+          .requestMatchers(HttpMethod.PATCH, "/api/products/**", "/api/product-category/**", "/api/shipping-address/**").hasRole("ADMIN")
           .requestMatchers("/api/customers/**").denyAll()
           .requestMatchers("/api/members/**").denyAll()
           .requestMatchers("/api/profile/**").denyAll()

@@ -31,10 +31,11 @@ public class LoginController {
     Member memberFromDB = memberRepository.findByEmail(member.getEmail());
     if (memberFromDB != null) {
       response = ResponseEntity.status(HttpStatus.CONFLICT).body("您輸入的電子郵件已經有人使用");
+      return response;
     }
     
     try {
-      member.setRole("user");
+      member.setRole("ROLE_USER");
       String hashPwd = passwordEncoder.encode(member.getPassword());
       member.setPassword(hashPwd);
       memberRepository.save(member);
