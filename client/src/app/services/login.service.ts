@@ -14,11 +14,15 @@ export class LoginService {
   isAuthenticated: Subject<boolean> = new BehaviorSubject<boolean>(false);
   member: Member = new Member();
 
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient) {
+    if (this.storage.getItem("isAuthenticated")) {
+      this.successAuthentication();
+    }
+  }
 
   validateLoginDetails(member: Member) {
     this.member = member;
-    return this.httpClient.get<Member>(this.loginUrl, { withCredentials: true });
+    return this.httpClient.get<Member>(this.loginUrl, { observe: "response", withCredentials: true });
   }
 
   successAuthentication() {

@@ -13,6 +13,7 @@ import { AppConstants } from '../constants/app-constants';
 export class AuthInterceptorService implements HttpInterceptor {
 
   member!: Member;
+  storage: Storage = sessionStorage;
 
   constructor(private router: Router, private loginService: LoginService) { }
 
@@ -25,12 +26,23 @@ export class AuthInterceptorService implements HttpInterceptor {
 
     if (securedEndpoints.some(url => req.urlWithParams.includes(url))) {
       let httpHeaders = new HttpHeaders();
-      if (this.loginService.member) {
-        this.member = this.loginService.member;
+      let token: string = "";
+      if (req.url == AppConstants.LOGIN_URL) {
+        if (this.loginService.member) {
+          this.member = this.loginService.member;
+        }
+        if (this.member && this.member.password && this.member.email) {
+          token = 'Basic ' + window.btoa(this.member.email + ':' + this.member.password);
+        }
       }
-      if (this.member && this.member.password && this.member.email) {
-        httpHeaders = httpHeaders.append('Authorization', 'Basic ' + window.btoa(this.member.email + ':' + this.member.password));
+      else {
+        if (this.storage.getItem("Authorization")) {
+          token = this.storage.getItem("Authorization")!;
+        }
       }
+
+      httpHeaders = httpHeaders.append('Authorization', token);
+
       let xsrf = sessionStorage.getItem('XSRF-TOKEN');
       if (xsrf) {
         httpHeaders = httpHeaders.append('X-XSRF-TOKEN', xsrf);

@@ -11,6 +11,7 @@ import { Purchase } from '../../common/purchase';
 import { CustomValidators } from '../../validators/custom-validators';
 import { Member } from '../../common/member';
 import { LoginService } from '../../services/login.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-checkout',
@@ -72,7 +73,7 @@ export class CheckoutComponent implements OnInit {
     }
 
     // set up member
-    const member: Member = this.loginService.member;
+    const member: Member = JSON.parse(this.storage.getItem("memberDetails")!);
 
     // set up order
     let order: Order = new Order(this.totalQuantity, this.totalPrice);
@@ -116,7 +117,8 @@ export class CheckoutComponent implements OnInit {
 
         },
         error: err => {
-          alert(`There was an error: ${err.message}`);
+          alert(`There was an error: ${err.error}`);
+          this.router.navigateByUrl("/login");
         }
       }
     );
