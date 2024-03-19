@@ -16,6 +16,9 @@ import org.springframework.security.web.csrf.CsrfTokenRequestAttributeHandler;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import com.manders.ecommerce.filter.CsrfCookieFilter;
+import com.manders.ecommerce.filter.JWTTokenGeneratorFilter;
+import com.manders.ecommerce.filter.JWTTokenValidatorFilter;
+import io.jsonwebtoken.lang.Arrays;
 import jakarta.servlet.http.HttpServletRequest;
 
 @Configuration
@@ -28,14 +31,11 @@ public class SecurityConfig {
     
     http
       /*
-       * 當使用者輸入帳號密碼成功後，spring security會將身分驗證資訊存到security context保存，
-       * 之後遇到需要存取受保護的API之後，拿存在cookie中的JSESSIONID後端伺服器會從context裡面找對應的session，
-       * session會儲存身分驗證的資訊，從裡面提取出來判斷是否有驗證過，讓用戶不必每次都輸入帳號密碼。
-       * 
-       * SessionCreationPolicy.ALWAYS表示session會不斷更新。
+       * 因為使用JWT進行驗證以及授權所以修改sessionCreationPolicy。
+       * 改成SessionCreationPolicy.STATELESS，表示不要生成JSESSIONID，因為jwt token本身就含有使用者詳細資料，
+       * 不需要再用http session來儲存。
        */
-      .securityContext(securityContext -> securityContext.requireExplicitSave(true))
-      .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+      .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
       
       /* 
        * cors 配置
@@ -48,6 +48,9 @@ public class SecurityConfig {
           config.setAllowedMethods(Collections.singletonList("*"));
           config.setAllowCredentials(true);
           config.setAllowedHeaders(Collections.singletonList("*"));
+          // 要讓client端知道有這個header，所以做下面的設定，spring security處理了csrf token的header
+          // 所以在這不需要加上他。
+          config.setExposedHeaders(Arrays.asList(new String[] {"Authorization"}));
           config.setMaxAge(3600L);
           return config;
         }
@@ -66,7 +69,9 @@ public class SecurityConfig {
           .ignoringRequestMatchers("/member/register")
           .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
       )
+      .addFilterBefore(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class)
       .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
+      .addFilterAfter(new JWTTokenGeneratorFilter(), BasicAuthenticationFilter.class)
       
       /* 
        * spring data rest會解析repository把他們做成restful api，但包含了POST會更改DB數據的API，所以在這邊把他們deny掉。

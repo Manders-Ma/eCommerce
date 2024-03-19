@@ -6,6 +6,7 @@ target/
 
 ### secret file ###
 src/main/resources/env.properties
+src/main/java/com/manders/ecommerce/constants
 
 ### STS ###
 .apt_generated
