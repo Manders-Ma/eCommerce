@@ -3,73 +3,68 @@ package com.manders.ecommerce.service;
 import java.util.Set;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import com.manders.ecommerce.dao.CustomerRepository;
-import com.manders.ecommerce.dao.MemberRepository;
 import com.manders.ecommerce.dto.Purchase;
 import com.manders.ecommerce.dto.PurchaseResponse;
-import com.manders.ecommerce.entity.Customer;
-import com.manders.ecommerce.entity.Member;
 import com.manders.ecommerce.entity.Order;
 import com.manders.ecommerce.entity.OrderItem;
-import jakarta.transaction.Transactional;
 
 @Service
 public class CheckoutServiceImpl implements CheckoutService {
   
   @Autowired
-  private CustomerRepository customerRepository;
+  private InventoryService inventoryService;
   
   @Autowired
-  private MemberRepository memberRepository;
+  private CustomerOrderService customerOrderService;
   
   
   @Override
-  @Transactional
-  public PurchaseResponse placeOrder(Purchase purchase) {
+  public ResponseEntity<PurchaseResponse> placeOrder(Purchase purchase) {
     
-    // retrieve the member from dto
-    Member member = memberRepository.findByEmail(purchase.getMember().getEmail());
+    ResponseEntity<PurchaseResponse> response = null;
+    String orderTrackingNumber = "";
     
-    // retrieve the order info from dto
+    // retrieve the order and orderItems info from dto
     Order order = purchase.getOrder();
-    
-    // generate tracking number
-    String orderTrackingNumber = generateOrderTrackingNumber();
-    order.setOrderTrackingNumber(orderTrackingNumber);
-    
-    // populate order with orderItems
     Set<OrderItem> orderItems = purchase.getOrderItems();
-    orderItems.forEach(item -> order.add(item));
     
-    // populate order with shippingAddressId
-    order.setShippingAddressId(purchase.getShippingAddress().getId());
-    
-    // populate customer with order
-    Customer customerFromDB = customerRepository.findCustomer(
-        purchase.getCustomer().getFirstName(), 
-        purchase.getCustomer().getLastName(), 
-        purchase.getCustomer().getEmail(), 
-        member.getMemberId()
-    );
-    Customer customer;
-    if (customerFromDB == null) {
-      customer = purchase.getCustomer();
+    try {
+      // 調用管理庫存的方法，有@Transcational
+      this.inventoryService.reserveInventory(orderItems);
+      
+      // populate order with order items
+      orderItems.forEach(item -> order.add(item));
+      
+      // generate tracking number
+      orderTrackingNumber = generateOrderTrackingNumber();
+      order.setOrderTrackingNumber(orderTrackingNumber);
+      
+      // populate order with shippingAddressId
+      order.setShippingAddressId(purchase.getShippingAddress().getId());
+    } catch (Exception e) {
+      response = ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(new PurchaseResponse(""));
+      return response;
     }
-    else {
-      customer = customerFromDB;
+    
+    
+    try {
+      /* 
+       * 假設場景是同個member同時下訂單，並填入相同的customer資料，這時會發生幻讀的問題。
+       * 我在創建customer table的時候設定了Unique key，打算用唯一性來解決他，直接讓某一個請求失敗。
+       * 同個member同時下訂單這場景有點作弊嫌疑，所以失敗不會造成太大影響。
+       */
+      this.customerOrderService.saveOrder(purchase.getCustomer(), purchase.getMember(), order);
+    } catch (Exception e) {
+      response = ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(new PurchaseResponse(""));
+      return response;
     }
     
-    customer.add(order);
+    response = ResponseEntity.status(HttpStatus.OK).body(new PurchaseResponse(orderTrackingNumber));
     
-    // populate customer with member id
-    customer.setMemberId(member.getMemberId());
-    
-    // save to the DB
-    customerRepository.save(customer);
-    
-    // return a response
-    return new PurchaseResponse(orderTrackingNumber);
+    return response;
   }
   
   private String generateOrderTrackingNumber() {

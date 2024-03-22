@@ -1,6 +1,7 @@
 package com.manders.ecommerce.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,9 +18,9 @@ public class CheckoutController {
   private CheckoutService checkoutService;
   
   @PostMapping("/purchase")
-  public PurchaseResponse placeOrder(@RequestBody Purchase purchase) {
+  public ResponseEntity<PurchaseResponse> placeOrder(@RequestBody Purchase purchase) {
     
-    PurchaseResponse purchaseResponse = checkoutService.placeOrder(purchase);
+    ResponseEntity<PurchaseResponse> purchaseResponse = checkoutService.placeOrder(purchase);
     
     return purchaseResponse;
   }
