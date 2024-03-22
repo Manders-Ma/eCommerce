@@ -85,6 +85,7 @@ public class SecurityConfig {
           .requestMatchers("/api/customers/**").denyAll()
           .requestMatchers("/api/members/**").denyAll()
           .requestMatchers("/api/profile/**").denyAll()
+          .requestMatchers("/api/products/search/reserveInventory").denyAll()
           .requestMatchers("/api/checkout/purchase", "/member/details").authenticated()
           .anyRequest().permitAll()
       )
