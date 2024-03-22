@@ -34,8 +34,11 @@
                                     </button>
                                 </div>
                             </div>
-                            <p *ngIf="cartItem.quantity >= cartItem.unitsInStock" class="alert alert-warning" role="alert">
+                            <p *ngIf="cartItem.quantity == cartItem.unitsInStock" class="alert alert-warning" role="alert">
                                 已達商品購買數量上限
+                            </p>
+                            <p *ngIf="cartItem.quantity > cartItem.unitsInStock" class="alert alert-warning" role="alert">
+                                超過商品購買數量上限
                             </p>
                         </div>
 

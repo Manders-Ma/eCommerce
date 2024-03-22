@@ -20,11 +20,6 @@ export class LoginStatusComponent implements OnInit {
   }
 
   logout() {
-    this.loginService.resetAuthenticationState();
-    // 登入登出都做過一次之後，再登入如果沒清掉XSRF-TOKEN，spring會認為你有所以不會給你，
-    // 由於我目前只在login的時候才獲取cookie並儲存到session stotage，所以這次沒拿到會
-    // 導致之後沒有辦法下訂單。
-    removeCookie("XSRF-TOKEN");
-    this.storage.clear();
+    this.loginService.logout();
   }
 }

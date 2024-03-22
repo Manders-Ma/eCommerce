@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { environment } from '../../environments/environment.development';
 import { LoginService } from '../services/login.service';
 import { AppConstants } from '../constants/app-constants';
+import { setCookie } from 'typescript-cookie';
 
 @Injectable({
   providedIn: 'root'
@@ -46,6 +47,7 @@ export class AuthInterceptorService implements HttpInterceptor {
       let xsrf = sessionStorage.getItem('XSRF-TOKEN');
       if (xsrf) {
         httpHeaders = httpHeaders.append('X-XSRF-TOKEN', xsrf);
+        setCookie("XSRF-TOKEN", xsrf);
       }
       httpHeaders = httpHeaders.append('X-Requested-With', 'XMLHttpRequest');
       req = req.clone({

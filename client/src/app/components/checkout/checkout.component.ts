@@ -111,14 +111,26 @@ export class CheckoutComponent implements OnInit {
     this.checkoutService.placeOrder(purchase).subscribe(
       {
         next: response => {
+          console.log(response);
           alert(`Your order has been received.\norder tracking number = ${response.orderTrackingNumber}`);
 
           this.resetCart();
 
         },
         error: err => {
-          alert(`There was an error: ${err.error}`);
-          this.router.navigateByUrl("/login");
+          console.log(err);
+          if (err.status === 406) {
+            alert("你所選的商品數量不足或已完售，請再次確認購物車。");
+            this.router.navigateByUrl("/cart-details");
+          }
+          else if (err.status === 401) {
+            alert("登入憑證已過期，請再次進行登入。");
+            this.loginService.logout();
+            this.router.navigateByUrl("/login");
+          }
+          else if (err.status === 403) {
+            alert("使用者權限不足");
+          }
         }
       }
     );
