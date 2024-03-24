@@ -5,5 +5,6 @@ export const AppConstants = {
     SHIPPING_ADDRESS_URL: environment.baseUrl + "/api/shipping-address",
     LOGIN_URL: environment.baseUrl + "/member/details",
     PRODUCT_URL: environment.baseUrl + "/api/products",
-    CATEGORY_URL: environment.baseUrl + "/api/product-category"
+    CATEGORY_URL: environment.baseUrl + "/api/product-category",
+    INVENTORY_URL: environment.baseUrl + "/inventory"
 }

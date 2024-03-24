@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../common/product';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Member } from '../../common/member';
 import { AppConstants } from '../../constants/app-constants';
+import { InventoryService } from '../../services/inventory.service';
 
 @Component({
   selector: 'app-product-list',
@@ -29,7 +30,12 @@ export class ProductListComponent implements OnInit {
 
   // The current active route that loaded the component.
   // Useful for accessing the route parameter.
-  constructor(private productService: ProductService, private route: ActivatedRoute) { }
+  constructor(
+    private productService: ProductService,
+    private route: ActivatedRoute,
+    private inventoryService: InventoryService,
+    private router: Router
+  ) { }
 
   ngOnInit(): void {
     if (this.storage.getItem("memberDetails")) {
@@ -120,6 +126,20 @@ export class ProductListComponent implements OnInit {
     this.thePageNumber = 1;
     this.thePageSize = Number(pageSize);
     this.listProducts();
+  }
+
+  remove(theProductId: number) {
+    this.inventoryService.deleteProductById(theProductId).subscribe(
+      {
+        next: response => {
+          alert(response.body.message);
+          window.location.reload();
+        },
+        error: err => {
+          alert(err.body.message);
+        }
+      }
+    );
   }
 
 }

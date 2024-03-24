@@ -22,7 +22,8 @@ export class AuthInterceptorService implements HttpInterceptor {
     // Only add an access token for secured endpoints
     const securedEndpoints = [
       AppConstants.LOGIN_URL,
-      AppConstants.PURCHASE_URL
+      AppConstants.PURCHASE_URL,
+      AppConstants.INVENTORY_URL
     ];
 
     if (securedEndpoints.some(url => req.urlWithParams.includes(url))) {
