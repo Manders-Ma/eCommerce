@@ -139,6 +139,7 @@ export class CheckoutComponent implements OnInit {
   resetCart() {
     // reset cart data
     this.cartService.cartItems = [];
+    this.cartService.persistCartItems();
     this.cartService.totalPrice.next(0);
     this.cartService.totalQuantity.next(0);
 
