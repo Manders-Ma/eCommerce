@@ -6,10 +6,20 @@
 
                 <div class="row">
                     <div *ngFor="let product of products" class="card col-3 product-box align-items-center justify-content-center text-center">
-                        <a routerLink="/products/{{ product.id }}" routerLinkActive="active-link">
-                            <img class="card-img-top img-responsive" src="{{ product.imageUrl }}">
-                        </a>
+                        <div *ngIf="member.role == 'ROLE_ADMIN'" class="container card-header">
+                            <div class="row align-items-center justify-content-center">
+                                <div class="col-5">
+                                    <a class="btn btn-outline-success btn-sm">Modify</a>
+                                </div>
+                                <div class="col-5">
+                                    <a class="btn btn-outline-danger btn-sm">Remove</a>
+                                </div>
+                            </div>
+                        </div>
                         <div class="card-body">
+                            <a routerLink="/products/{{ product.id }}" routerLinkActive="active-link">
+                                <img class="card-img-top img-responsive" src="{{ product.imageUrl }}">
+                            </a>
                             <a routerLink="/products/{{ product.id }}" routerLinkActive="active-link">
                                 <h5 class="card-title">{{ product.name }}</h5>
                             </a>

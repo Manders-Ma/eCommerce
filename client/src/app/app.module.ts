@@ -23,6 +23,7 @@ import { LoginStatusComponent } from './components/login-status/login-status.com
 import { LoginComponent } from './components/login/login.component';
 import { AuthInterceptorService } from './interceptors/auth-interceptor.service';
 import { authGuard } from './routeguards/auth.guard';
+import { LogoutPageComponent } from './components/logout-page/logout-page.component';
 
 // 定義上到下的順序為最具體的路徑到最通用的路徑
 const routes: Routes = [
@@ -30,6 +31,7 @@ const routes: Routes = [
   { path: 'search/:keyword', component: ProductListComponent },
   { path: 'category/:id', component: ProductListComponent },
   { path: 'login', component: LoginComponent },
+  { path: 'logout-page', component: LogoutPageComponent },
   { path: 'checkout', component: CheckoutComponent, canActivate: [authGuard] },
   { path: 'cart-details', component: CartDetailsComponent },
   { path: 'category', component: ProductListComponent },
@@ -50,6 +52,7 @@ const routes: Routes = [
     CheckoutComponent,
     LoginStatusComponent,
     LoginComponent,
+    LogoutPageComponent,
   ],
   imports: [
     RouterModule.forRoot(routes),

@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../common/product';
 import { ActivatedRoute } from '@angular/router';
+import { Member } from '../../common/member';
+import { AppConstants } from '../../constants/app-constants';
 
 @Component({
   selector: 'app-product-list',
@@ -21,12 +23,18 @@ export class ProductListComponent implements OnInit {
   thePageSize: number = 10;
   theTotalElements: number = 0;
 
+  // access client's role
+  storage: Storage = sessionStorage;
+  member: Member = new Member();
+
   // The current active route that loaded the component.
   // Useful for accessing the route parameter.
-  constructor(private productService: ProductService,
-    private route: ActivatedRoute) { }
+  constructor(private productService: ProductService, private route: ActivatedRoute) { }
 
   ngOnInit(): void {
+    if (this.storage.getItem("memberDetails")) {
+      this.member = JSON.parse(this.storage.getItem("memberDetails")!);
+    }
     // ngOnInit初次載入才會呼叫這些函數, 因此用subscribe讓他每次都能變更。
     this.route.paramMap.subscribe(() => {
       this.listProducts();

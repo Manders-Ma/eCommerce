@@ -125,8 +125,7 @@ export class CheckoutComponent implements OnInit {
           }
           else if (err.status === 401) {
             alert("登入憑證已過期，請再次進行登入。");
-            this.loginService.logout();
-            this.router.navigateByUrl("/login");
+            this.loginService.logout(true);
           }
           else if (err.status === 403) {
             alert("使用者權限不足");
