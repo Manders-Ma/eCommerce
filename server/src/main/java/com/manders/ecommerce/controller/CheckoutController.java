@@ -11,7 +11,7 @@ import com.manders.ecommerce.dto.PurchaseResponse;
 import com.manders.ecommerce.service.CheckoutService;
 
 @RestController
-@RequestMapping("/api/checkout")
+@RequestMapping("/checkout")
 public class CheckoutController {
   
   @Autowired

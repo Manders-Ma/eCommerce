@@ -86,7 +86,7 @@ public class SecurityConfig {
           .requestMatchers("/api/members/**").denyAll()
           .requestMatchers("/api/profile/**").denyAll()
           .requestMatchers("/api/products/search/reserveInventory").denyAll()
-          .requestMatchers("/api/checkout/purchase", "/member/details").authenticated()
+          .requestMatchers("/checkout/purchase", "/member/details").authenticated()
           .anyRequest().permitAll()
       )
       .formLogin(Customizer.withDefaults())
