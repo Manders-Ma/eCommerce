@@ -19,4 +19,10 @@ public class InventoryServiceImpl implements InventoryService {
     orderItems.forEach(item -> productRepository.reserveInventory(item.getProductId(), item.getQuantity()));
   }
 
+  @Override
+  @Transactional(rollbackFor = Exception.class)
+  public void deleteProductById(Long id) {
+    productRepository.deleteById(id);
+  }
+
 }

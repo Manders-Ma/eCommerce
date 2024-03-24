@@ -60,7 +60,7 @@ public class JWTTokenValidatorFilter extends OncePerRequestFilter {
   protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
     
     for (String url: SecurityConstants.JWT_AUTHENTICATED_URL) {
-      if (request.getServletPath().equals(url)) return false;
+      if (request.getServletPath().contains(url)) return false;
     }
     return true;
   }
