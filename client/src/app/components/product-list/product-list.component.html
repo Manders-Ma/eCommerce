@@ -9,7 +9,7 @@
                         <div *ngIf="member.role == 'ROLE_ADMIN'" class="container card-header">
                             <div class="row align-items-center justify-content-center">
                                 <div class="col-5">
-                                    <a class="btn btn-outline-success btn-sm">Modify</a>
+                                    <a routerLink="/product-details-modify/{{ product.id }}" routerLinkActive="active-link" class="btn btn-outline-success btn-sm">Modify</a>
                                 </div>
                                 <div class="col-5">
                                     <button class="btn btn-outline-danger btn-sm" (click)="remove(product.id)">Remove</button>

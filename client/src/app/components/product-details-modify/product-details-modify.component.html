@@ -1,0 +1,35 @@
+<div class="detail-section">
+    <div *ngIf="product" class="container-fluid">
+        <img src="{{ product.imageUrl }}" class="detail-img">
+
+        <!-- name -->
+        <div class="input-space">
+            <input type="text" [(ngModel)]="product.name">
+        </div>
+
+        <!-- unit price -->
+        <div class="row input-space price">
+            <div class="col-2"><label>TWD: </label></div>
+            <div class="col-6"><input class="col-5" type="text" [(ngModel)]="product.unitPrice"></div>
+        </div>
+
+        <!-- quantity -->
+        <div class="row input-space">
+            <div class="col-2"><label>Quantity: </label></div>
+            <div class="col-6"><input class="col-5" type="text" [(ngModel)]="product.unitsInStock"></div>
+        </div>
+
+        <hr>
+        <h4>Description</h4>
+        <!-- description -->
+        <div class="input-space">
+            <textarea [(ngModel)]="product.description"></textarea>
+        </div>
+
+        <div>
+            <button class="btn btn-primary" (click)="update()">update</button>
+        </div>
+
+        <a routerLink="/products" class="mt-5">Back to Product List</a>
+    </div>
+</div>
