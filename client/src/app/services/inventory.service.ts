@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { AppConstants } from '../constants/app-constants';
 import { Observable } from 'rxjs';
 import { Product } from '../common/product';
+import { ProductCreation } from '../common/product-creation';
 
 @Injectable({
   providedIn: 'root'
@@ -21,5 +22,10 @@ export class InventoryService {
   updateProduct(theProduct: Product): Observable<any> {
     const updateUrl = `${this.inventoryUrl}/update-product`;
     return this.httpClient.patch(updateUrl, theProduct, { observe: 'response', withCredentials: true });
+  }
+
+  saveProduct(productCreation: ProductCreation): Observable<any> {
+    const createUrl = `${this.inventoryUrl}/create-product`;
+    return this.httpClient.post(createUrl, productCreation, { observe: 'response', withCredentials: true });
   }
 }

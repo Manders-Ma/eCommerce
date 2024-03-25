@@ -1,0 +1,54 @@
+<div class="detail-section">
+    <div *ngIf="product" class="container-fluid">
+        <img src="{{ product.imageUrl }}" class="detail-img">
+
+        <!-- sku -->
+        <div class="row input-space">
+            <div class="col-2"><label>sku: </label></div>
+            <div class="col-6"><input class="col-5" type="text" [(ngModel)]="product.sku"></div>
+        </div>
+
+        <!-- name -->
+        <div class="row input-space">
+            <div class="col-2"><label>name: </label></div>
+            <div class="col-6"><input class="col-5" type="text" [(ngModel)]="product.name"></div>
+        </div>
+
+        <!-- unit price -->
+        <div class="row input-space price">
+            <div class="col-2"><label>TWD: </label></div>
+            <div class="col-6"><input class="col-5" type="text" [(ngModel)]="product.unitPrice"></div>
+        </div>
+
+        <!-- quantity -->
+        <div class="row input-space">
+            <div class="col-2"><label>Quantity: </label></div>
+            <div class="col-6"><input class="col-5" type="text" [(ngModel)]="product.unitsInStock"></div>
+        </div>
+
+        <!-- category -->
+        <div class="row input-space">
+            <div class="col-2">
+                product category:
+            </div>
+            <div class="col-6">
+                <select [(ngModel)]="selectedProductCategory">
+                    <option *ngFor="let productCategory of productCategories" [ngValue]="productCategory">
+                        {{ productCategory.categoryName }}
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <hr>
+        <h4>Description</h4>
+        <!-- description -->
+        <div class="input-space">
+            <textarea [(ngModel)]="product.description"></textarea>
+        </div>
+
+        <div>
+            <button class="btn btn-primary" (click)="save()">save</button>
+        </div>
+    </div>
+</div>

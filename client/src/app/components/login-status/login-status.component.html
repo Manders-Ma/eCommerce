@@ -1,4 +1,15 @@
 <div class="login-status-header">
     <button *ngIf="!isAuthenticated" routerLink="/login" class="security-btn">Login</button>
-    <button *ngIf="isAuthenticated" (click)="logout()" class="security-btn">Logout</button>
+
+    <div *ngIf="isAuthenticated" class="dropdown">
+        <button class="btn btn-info dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="https://github.com/mdo.png" alt="" width="32" height="32" class="rounded-circle me-2">
+            {{ member.name }}
+        </button>
+        <ul class="dropdown-menu">
+          <li><a *ngIf="member.role == 'ROLE_ADMIN'" class="dropdown-item" routerLink="/product-create">Create a product</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item" (click)="logout()">Logout</a></li>
+        </ul>
+    </div>
 </div>
