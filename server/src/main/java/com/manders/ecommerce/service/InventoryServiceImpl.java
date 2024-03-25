@@ -5,8 +5,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.manders.ecommerce.dao.ProductRepository;
+import com.manders.ecommerce.dto.ProductCreation;
 import com.manders.ecommerce.entity.OrderItem;
 import com.manders.ecommerce.entity.Product;
+import com.manders.ecommerce.entity.ProductCategory;
 
 @Service
 public class InventoryServiceImpl implements InventoryService {
@@ -37,6 +39,15 @@ public class InventoryServiceImpl implements InventoryService {
     productFromDB.setUnitsInStock(product.getUnitsInStock());
     productFromDB.setDescription(product.getDescription());
     productRepository.save(productFromDB);
+  }
+
+  @Override
+  @Transactional
+  public void saveProduct(ProductCreation productCreation) {
+    Product product = productCreation.getProduct();
+    ProductCategory productCategory = productCreation.getProductCategory();
+    product.setCategory(productCategory);
+    productRepository.save(product);
   }
 
 }

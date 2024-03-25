@@ -1,6 +1,7 @@
 package com.manders.ecommerce.service;
 
 import java.util.Set;
+import com.manders.ecommerce.dto.ProductCreation;
 import com.manders.ecommerce.entity.OrderItem;
 import com.manders.ecommerce.entity.Product;
 
@@ -10,4 +11,6 @@ public interface InventoryService {
   void deleteProductById(Long id);
   
   void updateProduct(Product product);
+  
+  void saveProduct(ProductCreation productCreation);
 }

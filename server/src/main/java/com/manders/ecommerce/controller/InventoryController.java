@@ -6,10 +6,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.manders.ecommerce.dto.MessageResponse;
+import com.manders.ecommerce.dto.ProductCreation;
 import com.manders.ecommerce.entity.Product;
 import com.manders.ecommerce.service.InventoryService;
 
@@ -47,6 +49,20 @@ public class InventoryController {
       return response;
     }
     
+    
+    return response;
+  }
+  
+  @PostMapping("/create-product")
+  public ResponseEntity<MessageResponse> saveProduct(@RequestBody ProductCreation productCreation) {
+    ResponseEntity<MessageResponse> response = null;
+    try {
+      inventoryService.saveProduct(productCreation);
+      response = ResponseEntity.status(HttpStatus.OK).body(new MessageResponse("商品新增模式: 已成功新增商品。"));
+    } catch (Exception e) {
+      response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse("商品新增模式: 請確認輸入格式是否正確。"));
+      return response;
+    }
     
     return response;
   }
