@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import com.manders.ecommerce.constants.OrderStatusConstants;
 import com.manders.ecommerce.dto.Purchase;
 import com.manders.ecommerce.dto.PurchaseResponse;
 import com.manders.ecommerce.entity.Order;
@@ -44,6 +45,10 @@ public class CheckoutServiceImpl implements CheckoutService {
       
       // populate order with shippingAddressId
       order.setShippingAddressId(purchase.getShippingAddress().getId());
+      
+      // 設定訂單狀態，已經留完商品數量，剩下就是等付款。
+      order.setStatus(OrderStatusConstants.STATUS_ONE);
+      
     } catch (Exception e) {
       response = ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(new PurchaseResponse(""));
       return response;
@@ -58,7 +63,7 @@ public class CheckoutServiceImpl implements CheckoutService {
        */
       this.customerOrderService.saveOrder(purchase.getCustomer(), purchase.getMember(), order);
     } catch (Exception e) {
-      response = ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(new PurchaseResponse(""));
+      response = ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(new PurchaseResponse(""));
       return response;
     }
     

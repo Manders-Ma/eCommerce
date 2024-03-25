@@ -29,7 +29,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
         customer.getFirstName(), 
         customer.getLastName(), 
         customer.getEmail(), 
-        memberFromDB.getMemberId()
+        memberFromDB
     );
     
     if (customerFromDB != null) {
@@ -38,11 +38,12 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
     
     customer.add(order);
     
-    // populate customer with member id
-    customer.setMemberId(memberFromDB.getMemberId());
+    // populate customer with member
+    customer.setMember(memberFromDB);
+    memberFromDB.getCustomers().add(customer);
     
     // save to the DB
-    customerRepository.save(customer);
+    memberRepository.save(memberFromDB);
   }
 
 }
