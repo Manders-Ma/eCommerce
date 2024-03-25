@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import com.manders.ecommerce.dao.ProductRepository;
 import com.manders.ecommerce.entity.OrderItem;
+import com.manders.ecommerce.entity.Product;
 
 @Service
 public class InventoryServiceImpl implements InventoryService {
@@ -23,6 +24,19 @@ public class InventoryServiceImpl implements InventoryService {
   @Transactional(rollbackFor = Exception.class)
   public void deleteProductById(Long id) {
     productRepository.deleteById(id);
+  }
+
+  @Override
+  @Transactional
+  public void updateProduct(Product product) {
+    Product productFromDB = productRepository.findById(product.getId()).get();
+    
+    // 如果已經先存在於DB，代表是做更新動作而已，所以從DB拿出來後，拿前端的資料來更新它。
+    productFromDB.setName(product.getName());
+    productFromDB.setUnitPrice(product.getUnitPrice());
+    productFromDB.setUnitsInStock(product.getUnitsInStock());
+    productFromDB.setDescription(product.getDescription());
+    productRepository.save(productFromDB);
   }
 
 }

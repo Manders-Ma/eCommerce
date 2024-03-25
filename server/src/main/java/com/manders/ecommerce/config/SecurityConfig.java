@@ -82,7 +82,7 @@ public class SecurityConfig {
           .requestMatchers(HttpMethod.PUT, "/api/products/**", "/api/product-category/**", "/api/shipping-address/**").hasRole("ADMIN")
           .requestMatchers(HttpMethod.DELETE, "/api/products/**", "/api/product-category/**", "/api/shipping-address/**").hasRole("ADMIN")
           .requestMatchers(HttpMethod.PATCH, "/api/products/**", "/api/product-category/**", "/api/shipping-address/**").hasRole("ADMIN")
-          .requestMatchers(HttpMethod.DELETE, "/inventory/**").hasAnyRole("ADMIN")
+          .requestMatchers("/inventory/**").hasAnyRole("ADMIN")
           .requestMatchers("/api/customers/**").denyAll()
           .requestMatchers("/api/members/**").denyAll()
           .requestMatchers("/api/profile/**").denyAll()
