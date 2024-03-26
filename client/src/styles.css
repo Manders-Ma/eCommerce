@@ -110,6 +110,10 @@ a:hover {
     transition: all .3s ease
 }
 
+a.isDisabled {
+    pointer-events: none;
+}
+
 /*Layout Css*/
 .section-content-p35 {
     padding: 0 35px

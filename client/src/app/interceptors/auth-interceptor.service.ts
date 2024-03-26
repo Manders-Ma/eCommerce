@@ -23,7 +23,8 @@ export class AuthInterceptorService implements HttpInterceptor {
     const securedEndpoints = [
       AppConstants.LOGIN_URL,
       AppConstants.PURCHASE_URL,
-      AppConstants.INVENTORY_URL
+      AppConstants.INVENTORY_URL,
+      AppConstants.ORDER_HISTORY_URL
     ];
 
     if (securedEndpoints.some(url => req.urlWithParams.includes(url))) {

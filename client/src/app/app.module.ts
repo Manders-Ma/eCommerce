@@ -23,6 +23,7 @@ import { LogoutPageComponent } from './components/logout-page/logout-page.compon
 import { ProductDetailsModifyComponent } from './components/product-details-modify/product-details-modify.component';
 import { roleGuard } from './routeguards/role.guard';
 import { ProductCreateComponent } from './components/product-create/product-create.component';
+import { OrderHistoryComponent } from './components/order-history/order-history.component';
 
 // 定義上到下的順序為最具體的路徑到最通用的路徑
 const routes: Routes = [
@@ -30,6 +31,7 @@ const routes: Routes = [
   { path: 'products/:id', component: ProductDetailsComponent },
   { path: 'search/:keyword', component: ProductListComponent },
   { path: 'category/:id', component: ProductListComponent },
+  { path: 'order-history', component: OrderHistoryComponent, canActivate: [authGuard] },
   { path: 'product-create', component: ProductCreateComponent, canActivate: [authGuard, roleGuard] },
   { path: 'login', component: LoginComponent },
   { path: 'logout-page', component: LogoutPageComponent, canActivate: [authGuard] },
@@ -55,7 +57,8 @@ const routes: Routes = [
     LoginComponent,
     LogoutPageComponent,
     ProductDetailsModifyComponent,
-    ProductCreateComponent
+    ProductCreateComponent,
+    OrderHistoryComponent
   ],
   imports: [
     RouterModule.forRoot(routes),

@@ -123,6 +123,10 @@ export class CheckoutComponent implements OnInit {
             alert("你所選的商品數量不足或已完售，請再次確認購物車。");
             this.router.navigateByUrl("/cart-details");
           }
+          else if (err.status === 405) {
+            alert("訂購人資料已存在。");
+            this.router.navigateByUrl("/cart-details");
+          }
           else if (err.status === 401) {
             alert("登入憑證已過期，請再次進行登入。");
             this.loginService.logout(true);

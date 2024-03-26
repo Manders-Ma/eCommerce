@@ -54,6 +54,7 @@ export class LoginComponent implements OnInit {
 
     this.loginService.validateLoginDetails(this.member).subscribe({
       next: response => {
+        console.log(response);
         // 把需要的資訊記錄下來，但不要接收敏感資訊。
         this.member.password = "";
         this.member.name = response.body?.name!;

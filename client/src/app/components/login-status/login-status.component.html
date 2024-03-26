@@ -7,9 +7,10 @@
             {{ member.name }}
         </button>
         <ul class="dropdown-menu">
-          <li><a *ngIf="member.role == 'ROLE_ADMIN'" class="dropdown-item" routerLink="/product-create">Create a product</a></li>
-          <li><hr class="dropdown-divider"></li>
-          <li><a class="dropdown-item" (click)="logout()">Logout</a></li>
+            <li><a  class="dropdown-item" routerLink="/order-history">Order History</a></li>
+            <li><a *ngIf="member.role == 'ROLE_ADMIN'" class="dropdown-item" routerLink="/product-create">Create a product</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><a class="dropdown-item" (click)="logout()">Logout</a></li>
         </ul>
     </div>
 </div>
