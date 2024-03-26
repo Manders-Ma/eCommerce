@@ -1,5 +1,6 @@
 package com.manders.ecommerce.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -36,6 +37,7 @@ public class OrderItem {
   @Column(name = "product_id")
   private Long productId;
   
+  @JsonIgnore
   @ManyToOne
   @JoinColumn(name = "order_id", nullable = false)
   private Order order;

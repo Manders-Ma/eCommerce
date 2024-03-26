@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 import org.hibernate.annotations.CreationTimestamp;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -40,9 +41,11 @@ public class Customer {
   @CreationTimestamp
   private Date dateCreated;
   
+  @JsonIgnore
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "customer")
   private Set<Order> orders = new HashSet<>();
   
+  @JsonIgnore
   @ManyToOne
   @JoinColumn(name = "member_id", nullable = false)
   private Member member;
