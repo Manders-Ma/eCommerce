@@ -28,7 +28,11 @@ public class SecurityConfig {
   SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
     
     CsrfTokenRequestAttributeHandler requestAttributeHandler = new CsrfTokenRequestAttributeHandler();
-    
+    String[] authApis = new String[] {"/checkout/purchase", "/member/details", "/order-history", "/pay/**"};
+    String[] denyApis = new String[] {"/api/orders/**", "/api/customers/**", "/api/members/**", "/api/profile/**", 
+        "/api/products/search/reserveInventory", };
+    // 不開放會更改資料庫的API
+    String[] notChangedApis = new String[] {"/api/products/**", "/api/product-category/**", "/api/shipping-address/**"};
     http
       /*
        * 因為使用JWT進行驗證以及授權所以修改sessionCreationPolicy。
@@ -78,17 +82,13 @@ public class SecurityConfig {
        * 此外定義哪些API需要通過驗證。
       */
       .authorizeHttpRequests((requests) -> requests
-          .requestMatchers(HttpMethod.POST, "/api/products/**", "/api/product-category/**", "/api/shipping-address/**").hasRole("ADMIN")
-          .requestMatchers(HttpMethod.PUT, "/api/products/**", "/api/product-category/**", "/api/shipping-address/**").hasRole("ADMIN")
-          .requestMatchers(HttpMethod.DELETE, "/api/products/**", "/api/product-category/**", "/api/shipping-address/**").hasRole("ADMIN")
-          .requestMatchers(HttpMethod.PATCH, "/api/products/**", "/api/product-category/**", "/api/shipping-address/**").hasRole("ADMIN")
+          .requestMatchers(HttpMethod.POST, notChangedApis).hasRole("ADMIN")
+          .requestMatchers(HttpMethod.PUT, notChangedApis).hasRole("ADMIN")
+          .requestMatchers(HttpMethod.DELETE, notChangedApis).hasRole("ADMIN")
+          .requestMatchers(HttpMethod.PATCH, notChangedApis).hasRole("ADMIN")
           .requestMatchers("/inventory/**").hasAnyRole("ADMIN")
-          .requestMatchers("/api/orders/**").denyAll()
-          .requestMatchers("/api/customers/**").denyAll()
-          .requestMatchers("/api/members/**").denyAll()
-          .requestMatchers("/api/profile/**").denyAll()
-          .requestMatchers("/api/products/search/reserveInventory").denyAll()
-          .requestMatchers("/checkout/purchase", "/member/details", "/order-history", "/pay/**").authenticated()
+          .requestMatchers(denyApis).denyAll()
+          .requestMatchers(authApis).authenticated()
           .anyRequest().permitAll()
       )
       .formLogin(Customizer.withDefaults())
