@@ -22,8 +22,8 @@
                         <td>{{ orderHistory.totalPrice | currency: 'TWD': 'code': '1.0-0' }}</td>
                         <td>{{ orderHistory.totalQuantity }}</td>
                         <td>
-                            <a *ngIf="orderHistory.status === '等待付款'" class="btn btn-link btn-sm">{{ orderHistory.status }}</a>
-                            <a *ngIf="orderHistory.status !== '等待付款'" class="btn btn-sm isDisabled">{{ orderHistory.status }}</a>
+                            <button (click)="pay(orderHistory)" *ngIf="orderHistory.status === '等待付款'" class="btn btn-link btn-sm">{{ orderHistory.status }}</button>
+                            <button *ngIf="orderHistory.status !== '等待付款'" class="btn btn-sm isDisabled">{{ orderHistory.status }}</button>
                         </td>
                         <td>{{ orderHistory.dateCreated | date: 'medium' }}</td>
                     </tr>

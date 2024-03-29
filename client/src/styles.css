@@ -110,7 +110,7 @@ a:hover {
     transition: all .3s ease
 }
 
-a.isDisabled {
+button.isDisabled {
     pointer-events: none;
 }
 
