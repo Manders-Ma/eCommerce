@@ -51,6 +51,7 @@ public class Member {
       this.customers = new HashSet<>();
     }
     this.customers.add(customer);
+    customer.setMember(this);
   }
 }
 

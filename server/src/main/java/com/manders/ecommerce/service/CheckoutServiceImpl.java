@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import com.manders.ecommerce.constants.OrderStatusConstants;
 import com.manders.ecommerce.dto.Purchase;
 import com.manders.ecommerce.dto.PurchaseResponse;
@@ -23,6 +25,7 @@ public class CheckoutServiceImpl implements CheckoutService {
   
   
   @Override
+  @Transactional
   public ResponseEntity<PurchaseResponse> placeOrder(Purchase purchase) {
     
     ResponseEntity<PurchaseResponse> response = null;
@@ -33,7 +36,6 @@ public class CheckoutServiceImpl implements CheckoutService {
     Set<OrderItem> orderItems = purchase.getOrderItems();
     
     try {
-      // 調用管理庫存的方法，有@Transcational
       this.inventoryService.reserveInventory(orderItems);
       
       // populate order with order items
@@ -50,10 +52,11 @@ public class CheckoutServiceImpl implements CheckoutService {
       order.setStatus(OrderStatusConstants.STATUS_ONE);
       
     } catch (Exception e) {
+      TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
       response = ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body(new PurchaseResponse(""));
       return response;
     }
-    
+   
     
     try {
       /* 
@@ -63,9 +66,10 @@ public class CheckoutServiceImpl implements CheckoutService {
        */
       this.customerOrderService.saveOrder(purchase.getCustomer(), purchase.getMember(), order);
     } catch (Exception e) {
+      TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
       response = ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(new PurchaseResponse(""));
       return response;
-    }
+    }    
     
     response = ResponseEntity.status(HttpStatus.OK).body(new PurchaseResponse(orderTrackingNumber));
     

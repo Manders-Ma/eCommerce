@@ -17,7 +17,6 @@ public class InventoryServiceImpl implements InventoryService {
   private ProductRepository productRepository;
 
   @Override
-  @Transactional(rollbackFor = Exception.class)
   public void reserveInventory(Set<OrderItem> orderItems) {
     orderItems.forEach(item -> productRepository.reserveInventory(item.getProductId(), item.getQuantity()));
   }
