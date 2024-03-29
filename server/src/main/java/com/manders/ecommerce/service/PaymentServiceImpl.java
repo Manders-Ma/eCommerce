@@ -3,6 +3,7 @@ package com.manders.ecommerce.service;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Collections;
+import java.util.UUID;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,11 +70,12 @@ public class PaymentServiceImpl implements PaymentService {
     ObjectMapper mapper = new ObjectMapper();
     String url = "";
     try {
+      String nonce = UUID.randomUUID().toString();
       String body = mapper.writeValueAsString(form);
       String signature = generateSignature(channelSecret, 
-          channelSecret + requestUri + body + orderTrackingNumber);
+          channelSecret + requestUri + body + nonce);
       
-      JsonNode response = paymentUtil.sendPostAPI(channelId, orderTrackingNumber, signature, paymentBaseUrl + requestUri, body);
+      JsonNode response = paymentUtil.sendPostAPI(channelId, nonce, signature, paymentBaseUrl + requestUri, body);
       url = response.get("info").get("paymentUrl").get("web").asText();
     } catch (JsonProcessingException e) {
       e.printStackTrace();
@@ -93,9 +95,10 @@ public class PaymentServiceImpl implements PaymentService {
     String confirmUri = baseUri + "/" + transactionId + "/confirm";
     
     String body = mapper.writeValueAsString(confirmData);
+    String nonce = UUID.randomUUID().toString();
     String signature = generateSignature(channelSecret, 
-        channelSecret + confirmUri + body + orderTrackingNumber);
-    JsonNode response = paymentUtil.sendPostAPI(channelId, orderTrackingNumber, signature, paymentBaseUrl + confirmUri, body);
+        channelSecret + confirmUri + body + nonce);
+    JsonNode response = paymentUtil.sendPostAPI(channelId, nonce, signature, paymentBaseUrl + confirmUri, body);
     order.setStatus(OrderStatusConstants.STATUS_TWO);
     orderRepository.save(order);
   }
