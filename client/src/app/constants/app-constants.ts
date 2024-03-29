@@ -7,5 +7,7 @@ export const AppConstants = {
     PRODUCT_URL: environment.baseUrl + "/api/products",
     CATEGORY_URL: environment.baseUrl + "/api/product-category",
     INVENTORY_URL: environment.baseUrl + "/inventory",
-    ORDER_HISTORY_URL: environment.baseUrl + "/order-history"
+    ORDER_HISTORY_URL: environment.baseUrl + "/order-history",
+    REQUEST_URL: environment.baseUrl + "/pay/request",
+    CONFIRM_URL: environment.baseUrl + "/pay/confirm"
 }

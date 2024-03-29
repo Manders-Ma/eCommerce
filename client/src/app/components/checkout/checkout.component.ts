@@ -12,6 +12,8 @@ import { CustomValidators } from '../../validators/custom-validators';
 import { Member } from '../../common/member';
 import { LoginService } from '../../services/login.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { PaymentService } from '../../services/payment.service';
 
 @Component({
   selector: 'app-checkout',
@@ -35,7 +37,8 @@ export class CheckoutComponent implements OnInit {
     private formService: FormService,
     private checkoutService: CheckoutService,
     private loginService: LoginService,
-    private router: Router
+    private router: Router,
+    private paymentService: PaymentService
   ) { }
 
   ngOnInit(): void {
@@ -113,9 +116,10 @@ export class CheckoutComponent implements OnInit {
         next: response => {
           console.log(response);
           alert(`Your order has been received.\norder tracking number = ${response.orderTrackingNumber}`);
-
           this.resetCart();
-
+          this.paymentService.request(response.orderTrackingNumber).subscribe(data => {
+            window.open(data.message, "_self");
+          });
         },
         error: err => {
           console.log(err);
@@ -148,9 +152,6 @@ export class CheckoutComponent implements OnInit {
 
     // reset the form
     this.checkoutFormGroup.reset();
-
-    // navigate back to the product page
-    this.router.navigateByUrl("/products");
   }
 
   reviewCartDetails() {

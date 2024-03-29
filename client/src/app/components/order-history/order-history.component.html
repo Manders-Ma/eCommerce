@@ -10,7 +10,7 @@
                         <th width="15%">Order Tracking Number</th>
                         <th width="3%">Total Price</th>
                         <th width="3%">Total Quantity</th>
-                        <th width="3%">Status</th>
+                        <th width="5%">Status</th>
                         <th width="10%">Date</th>
                     </tr>
                     <tr *ngFor="let orderHistory of orderHistories">
@@ -21,7 +21,10 @@
                         <td>{{ orderHistory.orderTrackingNumber }}</td>
                         <td>{{ orderHistory.totalPrice | currency: 'TWD': 'code': '1.0-0' }}</td>
                         <td>{{ orderHistory.totalQuantity }}</td>
-                        <td><a href="" class="btn btn-outline-secondary btn-sm" [ngClass]="{'isDisabled': orderHistory.status !== '等待付款'}">{{ orderHistory.status }}</a></td>
+                        <td>
+                            <a *ngIf="orderHistory.status === '等待付款'" class="btn btn-link btn-sm">{{ orderHistory.status }}</a>
+                            <a *ngIf="orderHistory.status !== '等待付款'" class="btn btn-sm isDisabled">{{ orderHistory.status }}</a>
+                        </td>
                         <td>{{ orderHistory.dateCreated | date: 'medium' }}</td>
                     </tr>
                 </table>
