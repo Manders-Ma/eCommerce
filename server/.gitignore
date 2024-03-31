@@ -6,7 +6,7 @@ target/
 
 ### secret file ###
 src/main/resources/env.properties
-src/main/java/com/manders/ecommerce/constants
+src/main/java/com/manders/ecommerce/constants/PaymentConstants.java
 
 ### STS ###
 .apt_generated
