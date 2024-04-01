@@ -28,9 +28,8 @@ public class SecurityConfig {
   SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
     
     CsrfTokenRequestAttributeHandler requestAttributeHandler = new CsrfTokenRequestAttributeHandler();
-    String[] authApis = new String[] {"/checkout/purchase", "/member/details", "/order-history", "/pay/**"};
-    String[] denyApis = new String[] {"/api/orders/**", "/api/customers/**", "/api/members/**", "/api/profile/**", 
-        "/api/products/search/reserveInventory", };
+    String[] authApis = new String[] {"/checkout/purchase", "/member/details", "/pay/**"};
+    String[] denyApis = new String[] {"/api/profile/**", "/api/products/search/reserveInventory"};
     // 不開放會更改資料庫的API
     String[] notChangedApis = new String[] {"/api/products/**", "/api/product-category/**", "/api/shipping-address/**"};
     http
