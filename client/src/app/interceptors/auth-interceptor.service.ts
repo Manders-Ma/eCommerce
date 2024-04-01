@@ -43,6 +43,7 @@ export class AuthInterceptorService implements HttpInterceptor {
       else {
         if (this.storage.getItem("Authorization")) {
           token = this.storage.getItem("Authorization")!;
+          token = "Bearer " + token;
         }
       }
 
