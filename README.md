@@ -13,7 +13,7 @@
 6. [Project Set Up](#project-set-up)  
 
 ## Server-Side API Documentation
-Swagger api documentation
+Swagger api documentation (等待更新)
 
 ## Client-Side Features
 > **用戶頁面 (身分: Visitor, User, Admin)**  
