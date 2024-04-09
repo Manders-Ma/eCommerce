@@ -96,6 +96,9 @@ DB_PASSWORD={password}
 ```
 
 4. run db script in db-script/
+- create-table(product, product-category)
+- create-table(member, customer, orders., order_item, shipping_address).sql
+- insert-data-member.sql
 
 5. [申請Line Pay sandbox帳戶取得ChannelId和ChannelSecret](https://pay.line.me/th/developers/main/main)
 
