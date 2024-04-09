@@ -96,7 +96,7 @@ DB_PASSWORD={password}
 ```
 
 4. run db script in db-script/
-- create-table(product, product-category)
+- create-table(product, product-category).sql
 - create-table(member, customer, orders., order_item, shipping_address).sql
 - insert-data-member.sql
 
