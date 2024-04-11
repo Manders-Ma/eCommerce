@@ -22,7 +22,7 @@ public class InventoryController {
   @Autowired
   private InventoryService inventoryService;
   
-  @DeleteMapping("/delete-product/{id}")
+  @DeleteMapping("/{id}")
   public ResponseEntity<MessageResponse> deleteProductById(@PathVariable(name = "id") Long id) {
     ResponseEntity<MessageResponse> response = null;
     
@@ -37,7 +37,7 @@ public class InventoryController {
     return response;
   }
   
-  @PatchMapping("/update-product")
+  @PatchMapping
   public ResponseEntity<MessageResponse> updateProduct(@RequestBody Product product) {
     ResponseEntity<MessageResponse> response = null;
     
@@ -53,7 +53,7 @@ public class InventoryController {
     return response;
   }
   
-  @PostMapping("/create-product")
+  @PostMapping
   public ResponseEntity<MessageResponse> saveProduct(@RequestBody ProductCreation productCreation) {
     ResponseEntity<MessageResponse> response = null;
     try {
