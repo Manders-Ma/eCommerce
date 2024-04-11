@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RestResource;
 import com.manders.ecommerce.entity.Product;
 import jakarta.transaction.Transactional;
 
@@ -19,6 +20,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
   
   @Modifying
   @Transactional
+  @RestResource(exported = false)
   @Query(value = "update Product p set p.unitsInStock = p.unitsInStock - :quantity where p.id=:id and p.active=true", nativeQuery = false)
   int reserveInventory(@Param("id") Long id, @Param("quantity") int quantity);
 }

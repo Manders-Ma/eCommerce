@@ -28,10 +28,12 @@ public class SecurityConfig {
   SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
     
     CsrfTokenRequestAttributeHandler requestAttributeHandler = new CsrfTokenRequestAttributeHandler();
-    String[] authApis = new String[] {"/checkout/purchase", "/member/details", "/pay/**"};
-    String[] denyApis = new String[] {"/api/profile/**", "/api/products/search/reserveInventory"};
-    // 不開放會更改資料庫的API
-    String[] notChangedApis = new String[] {"/api/products/**", "/api/product-category/**", "/api/shipping-address/**"};
+    
+    // 幫助設定API的存取權限，定義哪些API不可存取或是只能給管理員存取等等。
+    String[] needAuthApis = new String[] {"/checkout/purchase", "/member/details", "/pay/**"};
+    String[] modifyDBApis = new String[] {"/api/products/**", "/api/product-category/**", "/api/shipping-address/**"};
+    String[] needRoleAdminApis = new String[] {"/inventory"};
+    
     http
       /*
        * 因為使用JWT進行驗證以及授權所以修改sessionCreationPolicy。
@@ -52,7 +54,6 @@ public class SecurityConfig {
           config.setAllowCredentials(true);
           config.setAllowedHeaders(Collections.singletonList("*"));
           // 要讓client端知道有這個header，所以做下面的設定，spring security處理了csrf token的header
-          // 所以在這不需要加上他。
           config.setExposedHeaders(Arrays.asList(new String[] {"Authorization"}));
           config.setMaxAge(3600L);
           return config;
@@ -76,18 +77,16 @@ public class SecurityConfig {
       .addFilterAfter(new CsrfCookieFilter(), BasicAuthenticationFilter.class)
       .addFilterAfter(new JWTTokenGeneratorFilter(), BasicAuthenticationFilter.class)
       
-      /* 
-       * spring data rest會解析repository把他們做成restful api，但包含了POST會更改DB數據的API，所以在這邊把他們deny掉。
-       * 此外定義哪些API需要通過驗證。
-      */
+      /*
+       * api 權限設定
+       */
       .authorizeHttpRequests((requests) -> requests
-          .requestMatchers(HttpMethod.POST, notChangedApis).hasRole("ADMIN")
-          .requestMatchers(HttpMethod.PUT, notChangedApis).hasRole("ADMIN")
-          .requestMatchers(HttpMethod.DELETE, notChangedApis).hasRole("ADMIN")
-          .requestMatchers(HttpMethod.PATCH, notChangedApis).hasRole("ADMIN")
-          .requestMatchers("/inventory/**").hasAnyRole("ADMIN")
-          .requestMatchers(denyApis).denyAll()
-          .requestMatchers(authApis).authenticated()
+          .requestMatchers(HttpMethod.POST, modifyDBApis).hasRole("ADMIN")
+          .requestMatchers(HttpMethod.PUT, modifyDBApis).hasRole("ADMIN")
+          .requestMatchers(HttpMethod.DELETE, modifyDBApis).hasRole("ADMIN")
+          .requestMatchers(HttpMethod.PATCH, modifyDBApis).hasRole("ADMIN")
+          .requestMatchers(needRoleAdminApis).hasRole("ADMIN")
+          .requestMatchers(needAuthApis).authenticated()
           .anyRequest().permitAll()
       )
       .formLogin(Customizer.withDefaults())
