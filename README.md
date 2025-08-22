@@ -1,9 +1,3 @@
-# Brief Introduction
-- 前端Angular和後端Spring Boot的電商網站。
-- 後端使用JWT進行身份驗證和授權，實現CSRF保護，思考真實情況下會發生的數據庫race condition問題，選擇適合的方式解決。  
-- 前端可以根據商品分類瀏覽商品，將其添加到購物車中，並從購物車中修改或刪除商品，串接line pay api完成付款功能。某些頁面具有身份驗證guard和角色guard，以根據用戶角色區分功能。管理員用戶可以修改產品詳細資訊並添加新產品。
-
-
 # Table of Contents
 1. [Server-Side API Documentation](#server-side-api-documentation)
 2. [Client-Side Features](#client-side-features)
