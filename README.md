@@ -82,7 +82,14 @@ cd client/
 npm install
 ```
 
-3. add a file as env.properties in server/src/main/resources/
+3. copy the server env example and fill in your local MySQL settings
+```
+cd server/src/main/resources/
+copy env.properties.example env.properties
+```
+
+`env.properties` is ignored by Git. Do not commit real database credentials.
+
 ```
 DB_DATABASE={database url}
 DB_USER={user}

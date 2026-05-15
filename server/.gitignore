@@ -6,6 +6,10 @@ target/
 
 ### secret file ###
 src/main/resources/env.properties
+src/main/resources/.env
+.env
+.env.*
+!.env.example
 src/main/java/com/manders/ecommerce/constants/PaymentConstants.java
 
 ### STS ###
