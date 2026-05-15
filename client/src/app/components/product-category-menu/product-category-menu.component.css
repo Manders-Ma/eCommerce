@@ -1,0 +1,85 @@
+/* Product Category Menu Component Styles */
+
+.menu-sidebar-content {
+    padding: 20px 0;
+}
+
+.navbar-sidebar {
+    padding: 0;
+}
+
+.navbar-sidebar .navbar-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.navbar-sidebar .navbar-list li {
+    margin: 0;
+}
+
+.navbar-sidebar .navbar-list li a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-left: 3px solid transparent;
+    text-decoration: none;
+}
+
+.navbar-sidebar .navbar-list li a::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: currentColor;
+    border-radius: 50%;
+    margin-right: 12px;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar-sidebar .navbar-list li a:hover,
+.navbar-sidebar .navbar-list li a.active-link {
+    color: #2563eb;
+    border-left-color: #2563eb;
+    padding-left: 16px;
+    background-color: rgba(37, 99, 235, 0.05);
+}
+
+.navbar-sidebar .navbar-list li a:hover::before,
+.navbar-sidebar .navbar-list li a.active-link::before {
+    opacity: 1;
+}
+
+.navbar-sidebar .navbar-list li a i {
+    margin-right: 12px;
+    width: 16px;
+    text-align: center;
+}
+
+/* Animations for category items */
+.navbar-sidebar .navbar-list li {
+    animation: slideInLeft 0.3s ease-out backwards;
+}
+
+.navbar-sidebar .navbar-list li:nth-child(1) { animation-delay: 0s; }
+.navbar-sidebar .navbar-list li:nth-child(2) { animation-delay: 0.05s; }
+.navbar-sidebar .navbar-list li:nth-child(3) { animation-delay: 0.1s; }
+.navbar-sidebar .navbar-list li:nth-child(4) { animation-delay: 0.15s; }
+.navbar-sidebar .navbar-list li:nth-child(5) { animation-delay: 0.2s; }
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+

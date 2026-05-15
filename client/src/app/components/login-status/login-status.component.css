@@ -3,11 +3,22 @@
     right: 0;
     min-width: 95px;
     color: #fff;
-    border: 10px solid #205b8d;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 43px;
-    background: #205b8d
+    border: 2px solid #fff;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 10px 20px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.security-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 /*
@@ -19,7 +30,9 @@
     display: -webkit-flex;
     display: -moz-box;
     display: -ms-flexbox;
-    display: flex
+    display: flex;
+    gap: 12px;
+    align-items: center;
 }
 
 /*
@@ -29,13 +42,21 @@
 */
 .login-status-user-info {
     line-height: 43px;
-    border: 1px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     padding: 0 17px;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
-    -webkit-transition: all .5s ease;
-    -o-transition: all .5s ease;
-    -moz-transition: all .5s ease;
-    transition: all .5s ease
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+    -webkit-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    -o-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    -moz-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-weight: 500;
 }
+
+.login-status-user-info:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+

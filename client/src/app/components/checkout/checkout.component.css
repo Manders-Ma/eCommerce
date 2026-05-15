@@ -1,0 +1,85 @@
+/* Checkout Component Styles */
+
+.page-m {
+    background: #f9fafb;
+}
+
+.form-area {
+    background: #fff;
+    margin-bottom: 24px;
+    border-radius: 12px;
+    padding: 24px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.form-area h3 {
+    margin-bottom: 16px;
+    color: #2563eb;
+    font-size: 18px;
+}
+
+.input-space {
+    margin-bottom: 16px;
+}
+
+.input-space label {
+    display: block;
+    font-weight: 500;
+    color: #1f2937;
+    margin-bottom: 8px;
+}
+
+.input-space input,
+.input-space select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    family: "Inter", sans-serif;
+}
+
+.input-space input:focus,
+.input-space select:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    outline: none;
+}
+
+.text-center {
+    text-align: center;
+    margin-top: 24px;
+}
+
+.alert {
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 8px;
+}
+
+.alert.alert-danger {
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+}
+
+.col-md-2,
+.col-md-9 {
+    flex: 1;
+}
+
+@media (max-width: 768px) {
+    .col-md-2,
+    .col-md-9 {
+        flex: 100%;
+    }
+}
+

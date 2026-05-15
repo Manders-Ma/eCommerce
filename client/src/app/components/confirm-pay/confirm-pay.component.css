@@ -1,0 +1,103 @@
+/* Confirm Payment Component Styles */
+
+.payment-container {
+    background: #f9fafb;
+    padding: 40px 20px;
+    min-height: calc(100vh - 240px);
+}
+
+.payment-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 40px;
+    max-width: 600px;
+    margin: 0 auto;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+}
+
+.payment-status {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.payment-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+}
+
+.payment-icon.success {
+    background-color: #d1fae5;
+    color: #059669;
+}
+
+.payment-icon.error {
+    background-color: #fee2e2;
+    color: #dc2626;
+}
+
+.payment-status h2 {
+    color: #1f2937;
+    margin: 16px 0;
+}
+
+.payment-status p {
+    color: #6b7280;
+    margin: 8px 0;
+}
+
+.order-details {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 20px;
+    margin: 24px 0;
+}
+
+.order-details h3 {
+    color: #1f2937;
+    margin-bottom: 16px;
+    font-size: 16px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 500;
+    color: #6b7280;
+}
+
+.detail-value {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    justify-content: center;
+}
+
+.action-buttons a,
+.action-buttons button {
+    padding: 10px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+

@@ -1,0 +1,97 @@
+/* Logout Page Component Styles */
+
+.logout-container {
+    background: #f9fafb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 240px);
+    padding: 20px;
+}
+
+.logout-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 60px 40px;
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e5e7eb;
+}
+
+.logout-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: #2563eb;
+}
+
+.logout-card h2 {
+    color: #1f2937;
+    margin: 24px 0;
+    font-size: 24px;
+}
+
+.logout-card p {
+    color: #6b7280;
+    margin: 16px 0;
+    line-height: 1.6;
+}
+
+.logout-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+    flex-direction: column;
+}
+
+.logout-actions a,
+.logout-actions button {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-home {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    color: #fff;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+}
+
+.btn-home:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(37, 99, 235, 0.4);
+}
+
+.btn-login {
+    background: #f3f4f6;
+    color: #1f2937;
+    border: 2px solid #e5e7eb;
+}
+
+.btn-login:hover {
+    background: #e5e7eb;
+    border-color: #d1d5db;
+}
+
+@media (max-width: 480px) {
+    .logout-card {
+        padding: 40px 24px;
+    }
+
+    .logout-card h2 {
+        font-size: 20px;
+    }
+}
+

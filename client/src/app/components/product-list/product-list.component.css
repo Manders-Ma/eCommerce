@@ -1,0 +1,55 @@
+/* Product List Component Styles */
+
+.card {
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.card:hover {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transform: translateY(-4px);
+}
+
+.card-header {
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%);
+    border-bottom: 1px solid #e5e7eb;
+    padding: 12px !important;
+}
+
+.card-body {
+    padding: 16px;
+}
+
+.card-img-top {
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    margin-bottom: 12px;
+}
+
+.card:hover .card-img-top {
+    transform: scale(1.05);
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 12px;
+    line-height: 1.4;
+    transition: color 0.3s ease;
+}
+
+.card:hover .card-title {
+    color: #2563eb;
+}
+
+.price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #2563eb;
+    margin: 12px 0 0 0;
+}
+

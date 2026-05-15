@@ -1,0 +1,54 @@
+/* Cart Details Component Styles */
+
+.table-responsive {
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.items {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.items label {
+    font-weight: 500;
+    color: #1f2937;
+    white-space: nowrap;
+}
+
+.items button {
+    border-radius: 6px;
+    padding: 8px 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 600;
+}
+
+.items button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.items button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.alert {
+    border-radius: 8px;
+    border: 1px solid #fed7aa;
+    background-color: #fffbeb;
+    color: #92400e;
+    padding: 12px;
+    margin-top: 12px;
+}
+
+.alert.alert-warning {
+    border-color: #fed7aa;
+}
+
+.mt-2 {
+    font-weight: 600;
+    color: #1f2937;
+}
+
