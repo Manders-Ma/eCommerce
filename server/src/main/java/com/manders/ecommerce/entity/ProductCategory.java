@@ -11,6 +11,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "product_category")
@@ -25,11 +26,7 @@ public class ProductCategory {
   @Column(name = "category_name")
   private String categoryName;
   
-  
-  // [Q] What is CascadeType.ALL?
-  // [A] For example, consider a scenario where you have a Customer entity with a one-to-many relationship to Order entities. 
-  // By using CascadeType.ALL, any operation performed on the Customer entity (such as persist, merge, remove, or refresh) 
-  // will also be propagated to all associated Order entities.
+  @JsonIgnore
   @OneToMany(cascade = CascadeType.ALL, mappedBy = "category")
   private Set<Product> products;
 }
