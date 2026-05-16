@@ -92,8 +92,6 @@ CREATE TABLE `order_item` (
   KEY `K_order_id` (`order_id`),
   CONSTRAINT `FK_orders_id` FOREIGN KEY (`order_id`) REFERENCES `orders` (`id`)
   ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `FK_product_id` FOREIGN KEY (`product_id`) REFERENCES `product` (`id`)
-  ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4;
 
 -- -----------------------------------------------------
