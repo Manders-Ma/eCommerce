@@ -9,7 +9,7 @@ import com.manders.ecommerce.dto.ProductCategoryResponse;
 import com.manders.ecommerce.service.ProductQueryService;
 
 @RestController
-@RequestMapping("/api/product-category")
+@RequestMapping("/product-category")
 public class ProductCategoryController {
 
   @Autowired

@@ -13,7 +13,7 @@ import com.manders.ecommerce.entity.Product;
 import com.manders.ecommerce.service.ProductQueryService;
 
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/products")
 public class ProductController {
 
   @Autowired

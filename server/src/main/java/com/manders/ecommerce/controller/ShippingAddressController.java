@@ -9,7 +9,7 @@ import com.manders.ecommerce.dto.ShippingAddressResponse;
 import com.manders.ecommerce.service.ShippingAddressQueryService;
 
 @RestController
-@RequestMapping("/api/shipping-address")
+@RequestMapping("/shipping-address")
 public class ShippingAddressController {
 
   @Autowired
