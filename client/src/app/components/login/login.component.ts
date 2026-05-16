@@ -70,11 +70,16 @@ export class LoginComponent implements OnInit {
         this.loginService.successAuthentication();
 
         // store jwt token
-        this.storage.setItem("Authorization", response.headers.get("Authorization")!);
+        const authorization = response.headers.get("Authorization");
+        if (authorization?.startsWith("Bearer ")) {
+          this.storage.setItem("Authorization", authorization.substring(7));
+        }
 
         // store csrf token
-        let xsrf = getCookie("XSRF-TOKEN")!;
-        this.storage.setItem("XSRF-TOKEN", xsrf);
+        let xsrf = getCookie("XSRF-TOKEN");
+        if (xsrf) {
+          this.storage.setItem("XSRF-TOKEN", xsrf);
+        }
         this.router.navigateByUrl("/products");
       },
       error: err => {

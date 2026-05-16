@@ -4,34 +4,42 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import javax.crypto.SecretKey;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
 import com.manders.ecommerce.constants.SecurityConstants;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.lang.NonNull;
 
 public class JWTTokenValidatorFilter extends OncePerRequestFilter {
- 
+
+  private static final Logger logger = LoggerFactory.getLogger(JWTTokenValidatorFilter.class);
+
 
   @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-      FilterChain filterChain) throws ServletException, IOException {
-    
-    String jwt = request.getHeader(SecurityConstants.JWT_HEADER);
-    if (jwt != null && jwt.startsWith("Bearer ")) {
-      jwt = jwt.substring(7); // 去除 "Bearer " 前綴部分
+  protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response,
+      @NonNull FilterChain filterChain) throws ServletException, IOException {
+
+    String authHeader = request.getHeader(org.springframework.http.HttpHeaders.AUTHORIZATION);
+    String jwt = null;
+    if (authHeader != null && authHeader.startsWith("Bearer ")) {
+      jwt = authHeader.substring(7);
     }
     
-    if (jwt != null) {
+    if (jwt != null && !jwt.isBlank()) {
       try {
         SecretKey key = Keys.hmacShaKeyFor(SecurityConstants.JWT_KEY.getBytes(StandardCharsets.UTF_8));
         
@@ -44,15 +52,16 @@ public class JWTTokenValidatorFilter extends OncePerRequestFilter {
         String authorities = claims.get("authorities", String.class);
         
         Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, 
-            AuthorityUtils.commaSeparatedStringToAuthorityList(authorities));
-        
+            AuthorityUtils.commaSeparatedStringToAuthorityList(authorities != null ? authorities : ""));
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
       } catch (ExpiredJwtException e) {
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.getWriter().write(e.getMessage());
-      } catch (Exception e) {
-        response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.getWriter().write("Invalid JWT Token!");
+        logger.info("JWT expired: {}", e.getMessage());
+        respondWithUnauthorized(response, "JWT expired: " + e.getMessage());
+        return;
+      } catch (JwtException | IllegalArgumentException e) {
+        logger.warn("Invalid JWT: {}", e.getMessage());
+        respondWithUnauthorized(response, "Invalid JWT Token");
         return;
       }
     }
@@ -60,9 +69,16 @@ public class JWTTokenValidatorFilter extends OncePerRequestFilter {
     filterChain.doFilter(request, response);
   }
   
+  private void respondWithUnauthorized(@NonNull HttpServletResponse response, String message) throws IOException {
+    response.setStatus(HttpStatus.UNAUTHORIZED.value());
+    response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+    String body = String.format("{\"status\":%d,\"error\":\"%s\"}", HttpStatus.UNAUTHORIZED.value(), message);
+    response.getWriter().write(body);
+  }
+
   @Override
-  protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
-    
+  protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+
     for (String url: SecurityConstants.JWT_AUTHENTICATED_URL) {
       if (request.getServletPath().contains(url)) return false;
     }

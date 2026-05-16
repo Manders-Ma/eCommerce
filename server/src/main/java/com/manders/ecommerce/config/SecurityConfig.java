@@ -54,7 +54,7 @@ public class SecurityConfig {
           config.setAllowCredentials(true);
           config.setAllowedHeaders(Collections.singletonList("*"));
           // 要讓client端知道有這個header，所以做下面的設定，spring security處理了csrf token的header
-          config.setExposedHeaders(Arrays.asList(new String[] {"Authorization"}));
+          config.setExposedHeaders(Arrays.asList(new String[] {"Authorization", "X-XSRF-TOKEN"}));
           config.setMaxAge(3600L);
           return config;
         }
