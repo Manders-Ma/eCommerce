@@ -12,7 +12,6 @@ import { CustomValidators } from '../../validators/custom-validators';
 import { Member } from '../../common/member';
 import { LoginService } from '../../services/login.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { BehaviorSubject, Subject } from 'rxjs';
 import { PaymentService } from '../../services/payment.service';
 
 @Component({
@@ -115,11 +114,7 @@ export class CheckoutComponent implements OnInit {
       {
         next: response => {
           console.log(response);
-          alert(`Your order has been received.\norder tracking number = ${response.orderTrackingNumber}`);
-          this.resetCart();
-          this.paymentService.request(response.orderTrackingNumber).subscribe(data => {
-            window.open(data.message, "_self");
-          });
+          this.redirectToPayment(response.orderTrackingNumber);
         },
         error: err => {
           console.log(err);
@@ -141,6 +136,31 @@ export class CheckoutComponent implements OnInit {
         }
       }
     );
+  }
+
+  private redirectToPayment(orderTrackingNumber: string) {
+    this.paymentService.request(orderTrackingNumber).subscribe({
+      next: data => {
+        console.log(data);
+        const paymentUrl = data?.message;
+
+        if (!paymentUrl) {
+          alert(`訂單已建立，但取得付款網址失敗。\n訂單編號 = ${orderTrackingNumber}`);
+          this.resetCart();
+          this.router.navigateByUrl("/order-history");
+          return;
+        }
+
+        this.resetCart();
+        window.location.assign(paymentUrl);
+      },
+      error: err => {
+        console.log(err);
+        alert(`訂單已建立，但目前無法開啟付款頁。\n訂單編號 = ${orderTrackingNumber}\n請稍後到訂單紀錄重新付款。`);
+        this.resetCart();
+        this.router.navigateByUrl("/order-history");
+      }
+    });
   }
 
   resetCart() {
