@@ -82,24 +82,27 @@ cd client/
 npm install
 ```
 
-3. copy the server env example and fill in your local MySQL settings
-```
+3. 建立 server 的環境設定（PostgreSQL）
+
+```powershell
 cd server/src/main/resources/
 copy env.properties.example env.properties
 ```
 
-`env.properties` is ignored by Git. Do not commit real database credentials.
+編輯 `env.properties`（此檔已被 .gitignore 忽略，請勿將真實憑證推到版本庫），填入你的 PostgreSQL 連線參數，例如：
 
 ```
-DB_DATABASE={database url}
-DB_USER={user}
-DB_PASSWORD={password}
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=ecommerce
+DB_USERNAME=postgres
+DB_PASSWORD=your_db_password
 ```
 
-4. run db script in db-script/
-- create-table(product, product-category).sql
-- create-table(member, customer, orders., order_item, shipping_address).sql
-- insert-data-member.sql
+4. 在本機建立資料庫並執行 SQL 腳本
+
+專案已將 PostgreSQL 用的腳本放在 `db-script/postgres/`（`01-create-tables.sql`, `02-insert-sample-data.sql`）。推薦使用 `psql`（或 pgAdmin）執行。
+
 
 5. [申請Line Pay sandbox帳戶取得ChannelId和ChannelSecret](https://pay.line.me/th/developers/main/main)
 
