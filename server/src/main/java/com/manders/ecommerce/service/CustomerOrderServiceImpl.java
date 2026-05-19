@@ -23,7 +23,7 @@ public class CustomerOrderServiceImpl implements CustomerOrderService {
     Member memberFromDB = this.memberRepository.findByEmail(member.getEmail());
     
     // populate customer with order
-    Customer customerFromDB = this.customerRepository.findCustomer(
+    Customer customerFromDB = this.customerRepository.findByFirstNameAndLastNameAndEmailAndMember(
         customer.getFirstName(), 
         customer.getLastName(), 
         customer.getEmail(), 

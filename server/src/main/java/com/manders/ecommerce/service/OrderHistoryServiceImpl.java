@@ -16,7 +16,7 @@ public class OrderHistoryServiceImpl implements OrderHistoryService {
   @Override
   @Transactional
   public List<Order> getOrderHistory(String email) {
-    List<Order> orderHistories = orderRepository.findByMemberEmailOrderByDateDesc(email);
+    List<Order> orderHistories = orderRepository.findByCustomerMemberEmailOrderByDateCreatedDesc(email);
     
     return orderHistories;
   }

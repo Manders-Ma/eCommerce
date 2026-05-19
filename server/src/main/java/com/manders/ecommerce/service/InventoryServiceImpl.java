@@ -9,6 +9,7 @@ import com.manders.ecommerce.dto.ProductCreation;
 import com.manders.ecommerce.entity.OrderItem;
 import com.manders.ecommerce.entity.Product;
 import com.manders.ecommerce.entity.ProductCategory;
+import com.manders.ecommerce.exception.InsufficientInventoryException;
 
 @Service
 public class InventoryServiceImpl implements InventoryService {
@@ -17,8 +18,16 @@ public class InventoryServiceImpl implements InventoryService {
   private ProductRepository productRepository;
 
   @Override
+  @Transactional(rollbackFor = Exception.class)
   public void reserveInventory(Set<OrderItem> orderItems) {
-    orderItems.forEach(item -> productRepository.reserveInventory(item.getProductId(), item.getQuantity()));
+    for (OrderItem item : orderItems) {
+      int updatedRows = productRepository.reserveInventory(item.getProductId(), item.getQuantity());
+      if (updatedRows == 0) {
+        throw new InsufficientInventoryException(
+            "商品 ID: " + item.getProductId() + " 庫存不足，無法預留"
+        );
+      }
+    }
   }
 
   @Override
