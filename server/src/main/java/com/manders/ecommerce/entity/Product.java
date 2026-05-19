@@ -34,7 +34,7 @@ public class Product {
   private String description;
   
   @Column(name = "unit_price")
-  private int unitPrice;
+  private Integer unitPrice;
   
   @Column(name = "image_url")
   private String imageUrl;
@@ -43,7 +43,7 @@ public class Product {
   private boolean active;
   
   @Column(name = "units_in_stock")
-  private int unitsInStock;
+  private Integer unitsInStock;
   
   @Column(name = "date_created")
   @CreationTimestamp

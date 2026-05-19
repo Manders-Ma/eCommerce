@@ -31,26 +31,26 @@ public class InventoryServiceImpl implements InventoryService {
   }
 
   @Override
-  @Transactional(rollbackFor = Exception.class)
   public void deleteProductById(Long id) {
     productRepository.deleteById(id);
   }
 
   @Override
-  @Transactional
   public void updateProduct(Product product) {
-    Product productFromDB = productRepository.findById(product.getId()).get();
-    
-    // 如果已經先存在於DB，代表是做更新動作而已，所以從DB拿出來後，拿前端的資料來更新它。
-    productFromDB.setName(product.getName());
-    productFromDB.setUnitPrice(product.getUnitPrice());
-    productFromDB.setUnitsInStock(product.getUnitsInStock());
-    productFromDB.setDescription(product.getDescription());
-    productRepository.save(productFromDB);
+    Product productFromDB = productRepository.findById(product.getId()).orElse(null);
+
+    if (productFromDB == null) {
+      throw new RuntimeException("找不到商品，無法更新。");
+    } else {
+      if (product.getName() != null) productFromDB.setName(product.getName());
+      if (product.getUnitPrice() != null) productFromDB.setUnitPrice(product.getUnitPrice());
+      if (product.getUnitsInStock() != null) productFromDB.setUnitsInStock(product.getUnitsInStock());
+      if (product.getDescription() != null) productFromDB.setDescription(product.getDescription());
+      productRepository.save(productFromDB);
+    }
   }
 
   @Override
-  @Transactional
   public void saveProduct(ProductCreation productCreation) {
     Product product = productCreation.getProduct();
     ProductCategory productCategory = productCreation.getProductCategory();
