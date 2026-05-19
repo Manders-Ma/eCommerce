@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class ShippingAddressResponse {
-  private Embedded _embedded;
+  private Embedded embedded;
 
   @Getter
   @Setter

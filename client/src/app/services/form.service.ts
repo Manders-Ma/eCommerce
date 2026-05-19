@@ -15,13 +15,13 @@ export class FormService {
 
   getShippingAddress(): Observable<ShippingAddress[]> {
     return this.httpClient.get<GetResponseShippingAddress>(this.shippingAddressUrl).pipe(
-      map(response => response._embedded.shippingAddress)
+      map(response => response.embedded.shippingAddress)
     );
   }
 }
 
 interface GetResponseShippingAddress {
-  _embedded: {
+  embedded: {
     shippingAddress: ShippingAddress[]
   }
 }

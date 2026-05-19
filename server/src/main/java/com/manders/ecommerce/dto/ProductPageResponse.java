@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 public class ProductPageResponse {
-  private Embedded _embedded;
+  private Embedded embedded;
   private PageMetadata page;
 
   @Getter

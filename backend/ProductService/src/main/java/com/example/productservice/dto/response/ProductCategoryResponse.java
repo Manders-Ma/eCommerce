@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class ProductCategoryResponse {
-  private Embedded _embedded;
+  private Embedded embedded;
 
   @Getter
   @Setter

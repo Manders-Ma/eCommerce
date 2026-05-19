@@ -16,24 +16,6 @@ export class ProductService {
 
   constructor(private httpClient: HttpClient) { }
 
-
-  /* @ we show product list with pagination, so drop these fnctions.
-  getProductList(theCategoryId: number): Observable<Product[]> {
-    const searchUrl = `${this.baseUrl}/search/findByCategoryId?id=${theCategoryId}`;
-
-    return this.httpClient.get<GetResponseProducts>(searchUrl).pipe(
-      map(response => response._embedded.products)
-    );
-  }
-
-  searchProducts(theKeyword: string): Observable<Product[]> {
-    const searchUrl = `${this.baseUrl}/search/findByNameContaining?name=${theKeyword}`;
-    return this.httpClient.get<GetResponseProducts>(searchUrl).pipe(
-      map(response => response._embedded.products)
-    )
-  }
-  */
-
   getProduct(theProductId: number): Observable<Product> {
     const searchUrl = `${this.productUrl}/${theProductId}`;
     return this.httpClient.get<Product>(searchUrl);
@@ -54,13 +36,13 @@ export class ProductService {
 
   getProductCategories(): Observable<ProductCategory[]> {
     return this.httpClient.get<GetResponseProductCategory>(this.categoryUrl).pipe(
-      map(response => response._embedded.productCategory)
+      map(response => response.embedded.productCategory)
     );
   }
 }
 
 interface GetResponseProducts {
-  _embedded: {
+  embedded: {
     products: Product[];
   },
   page: {
@@ -72,7 +54,7 @@ interface GetResponseProducts {
 }
 
 interface GetResponseProductCategory {
-  _embedded: {
+  embedded: {
     productCategory: ProductCategory[];
   }
 }

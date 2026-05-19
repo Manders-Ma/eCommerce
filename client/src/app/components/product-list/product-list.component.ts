@@ -19,7 +19,7 @@ export class ProductListComponent implements OnInit {
   searchMode: boolean = false;
   previousKeyword: string = "";
 
-  // set properties for pagination 
+  // set properties for pagination
   thePageNumber: number = 1;
   thePageSize: number = 10;
   theTotalElements: number = 0;
@@ -115,7 +115,7 @@ export class ProductListComponent implements OnInit {
 
   private processResult() {
     return (data: any) => {
-      this.products = data._embedded.products;
+      this.products = data.embedded.products;
       this.thePageNumber = data.page.number + 1;
       this.thePageSize = data.page.size;
       this.theTotalElements = data.page.totalElements
