@@ -75,13 +75,4 @@ public class JWTTokenValidatorFilter extends OncePerRequestFilter {
     String body = String.format("{\"status\":%d,\"error\":\"%s\"}", HttpStatus.UNAUTHORIZED.value(), message);
     response.getWriter().write(body);
   }
-
-  @Override
-  protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
-
-    for (String url: SecurityConstants.JWT_AUTHENTICATED_URL) {
-      if (request.getServletPath().contains(url)) return false;
-    }
-    return true;
-  }
 }

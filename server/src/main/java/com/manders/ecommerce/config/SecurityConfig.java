@@ -43,24 +43,16 @@ public class SecurityConfig {
 
   private static final String[] CSRF_IGNORED_APIS = {
       "/member/register",
-      "/checkout/purchase",
-      "/member/details",
-      "/pay/**",
-      "/products/**",
-      "/product-category/**",
-      "/shipping-address/**",
-      "/inventory"
   };
 
   @Bean
   SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-    var csrfRequestHandler = new CsrfTokenRequestAttributeHandler();
 
     http
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .cors(Customizer.withDefaults())
         .csrf(csrf -> csrf
-            .csrfTokenRequestHandler(csrfRequestHandler)
+            .csrfTokenRequestHandler(new CsrfTokenRequestAttributeHandler())
             .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             .ignoringRequestMatchers(CSRF_IGNORED_APIS))
         .addFilterBefore(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class)
