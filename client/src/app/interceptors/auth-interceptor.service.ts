@@ -1,6 +1,6 @@
 import { HttpErrorResponse, HttpEvent, HttpHandler, HttpHeaders, HttpInterceptor, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, catchError, throwError } from 'rxjs';
 import { Member } from '../common/member';
 import { Router } from '@angular/router';
 import { environment } from '../../environments/environment.development';
@@ -50,15 +50,27 @@ export class AuthInterceptorService implements HttpInterceptor {
         httpHeaders = httpHeaders.append('Authorization', token);
       }
 
-      let xsrf = getCookie("XSRF-TOKEN") ?? sessionStorage.getItem('XSRF-TOKEN');
+      const xsrf = getCookie("XSRF-TOKEN");
       if (xsrf) {
         httpHeaders = httpHeaders.append('X-XSRF-TOKEN', xsrf);
       }
       httpHeaders = httpHeaders.append('X-Requested-With', 'XMLHttpRequest');
       req = req.clone({
-        headers: httpHeaders
+        headers: httpHeaders,
+        withCredentials: true
       });
     }
-    return next.handle(req);
+    return next.handle(req).pipe(
+      catchError((error: HttpErrorResponse) => {
+        if (error.status === 403) {
+          const freshXsrf = getCookie("XSRF-TOKEN");
+          if (freshXsrf) {
+            const retryReq = req.clone({ headers: req.headers.set('X-XSRF-TOKEN', freshXsrf) });
+            return next.handle(retryReq);
+          }
+        }
+        return throwError(() => error);
+      })
+    );
   }
 }

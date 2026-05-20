@@ -3,6 +3,7 @@ package com.manders.ecommerce.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,15 +22,9 @@ public class PaymentController {
   
   @PostMapping("/request")
   public ResponseEntity<MessageResponse> request(@RequestBody String orderTrackingNumber) {
-    ResponseEntity<MessageResponse> response = null;
     String url = paymentService.sendRequestAPI(orderTrackingNumber);
     
-    if (url.equals("")) {
-      response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse("failed"));
-    }
-    response = ResponseEntity.status(HttpStatus.OK).body(new MessageResponse(url));
-    
-    return response;
+    return ResponseEntity.status(HttpStatus.OK).body(new MessageResponse(url));
   }
   
   @PostMapping("/confirm")
@@ -38,10 +33,20 @@ public class PaymentController {
     try {
       paymentService.sendConfirmAPI(parameter.getTransactionId(), parameter.getOrderTrackingNumber());
       response = ResponseEntity.status(HttpStatus.OK).body(new MessageResponse("success"));
-    } catch (JsonProcessingException e) {
+    } catch (JsonProcessingException | IllegalStateException e) {
       response = ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse("failed"));
     }
     
     return response;
+  }
+
+  @ExceptionHandler(IllegalArgumentException.class)
+  public ResponseEntity<MessageResponse> handleBadRequest(IllegalArgumentException e) {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new MessageResponse(e.getMessage()));
+  }
+
+  @ExceptionHandler(IllegalStateException.class)
+  public ResponseEntity<MessageResponse> handlePaymentError(IllegalStateException e) {
+    return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(new MessageResponse(e.getMessage()));
   }
 }

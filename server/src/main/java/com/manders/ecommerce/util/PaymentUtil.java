@@ -4,6 +4,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -20,14 +21,19 @@ public class PaymentUtil {
     headers.add("X-LINE-Authorization", signature);
     
     HttpEntity<String> request = new HttpEntity<String>(body, headers);
-    String response = restTemplate.postForObject(url, request, String.class);
+    String response = null;
+    try {
+      response = restTemplate.postForObject(url, request, String.class);
+    } catch (RestClientResponseException e) {
+      response = e.getResponseBodyAsString();
+    }
     ObjectMapper mapper = new ObjectMapper();
     JsonNode json = null;
     
     try {
       json = mapper.readTree(response);
     } catch (Exception e) {
-      e.printStackTrace();
+      throw new IllegalStateException("Unable to parse payment API response", e);
     }
     
     return json;

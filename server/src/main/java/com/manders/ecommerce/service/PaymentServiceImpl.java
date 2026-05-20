@@ -41,6 +41,9 @@ public class PaymentServiceImpl implements PaymentService {
   @Override
   public String sendRequestAPI(String orderTrackingNumber) {
     Order order = orderRepository.findByOrderTrackingNumber(orderTrackingNumber);
+    if (order == null) {
+      throw new IllegalArgumentException("Order not found: " + orderTrackingNumber);
+    }
     
     CheckoutPaymentRequestForm form = new CheckoutPaymentRequestForm();
 
@@ -76,9 +79,15 @@ public class PaymentServiceImpl implements PaymentService {
           channelSecret + requestUri + body + nonce);
       
       JsonNode response = paymentUtil.sendPostAPI(channelId, nonce, signature, paymentBaseUrl + requestUri, body);
-      url = response.get("info").get("paymentUrl").get("web").asText();
+      JsonNode paymentUrl = response.path("info").path("paymentUrl").path("web");
+      if (paymentUrl.isMissingNode() || paymentUrl.isNull() || paymentUrl.asText().isBlank()) {
+        String returnCode = response.path("returnCode").asText("unknown");
+        String returnMessage = response.path("returnMessage").asText("Payment API did not return a web payment URL");
+        throw new IllegalStateException("Payment API request failed: " + returnCode + " - " + returnMessage);
+      }
+      url = paymentUrl.asText();
     } catch (JsonProcessingException e) {
-      e.printStackTrace();
+      throw new IllegalStateException("Unable to serialize payment request", e);
     }
     
     return url;
@@ -87,6 +96,9 @@ public class PaymentServiceImpl implements PaymentService {
   @Override
   public void sendConfirmAPI(String transactionId, String orderTrackingNumber) throws JsonProcessingException {
     Order order = orderRepository.findByOrderTrackingNumber(orderTrackingNumber);
+    if (order == null) {
+      throw new IllegalArgumentException("Order not found: " + orderTrackingNumber);
+    }
     
     ConfirmData confirmData = new ConfirmData();
     confirmData.setAmount(order.getTotalPrice());
@@ -99,6 +111,11 @@ public class PaymentServiceImpl implements PaymentService {
     String signature = generateSignature(channelSecret, 
         channelSecret + confirmUri + body + nonce);
     JsonNode response = paymentUtil.sendPostAPI(channelId, nonce, signature, paymentBaseUrl + confirmUri, body);
+    if (!"0000".equals(response.path("returnCode").asText())) {
+      String returnCode = response.path("returnCode").asText("unknown");
+      String returnMessage = response.path("returnMessage").asText("Payment API confirm failed");
+      throw new IllegalStateException("Payment API confirm failed: " + returnCode + " - " + returnMessage);
+    }
     order.setStatus(OrderStatusConstants.STATUS_TWO);
     orderRepository.save(order);
   }

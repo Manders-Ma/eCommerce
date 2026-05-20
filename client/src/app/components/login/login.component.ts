@@ -75,11 +75,6 @@ export class LoginComponent implements OnInit {
           this.storage.setItem("Authorization", authorization.substring(7));
         }
 
-        // store csrf token
-        let xsrf = getCookie("XSRF-TOKEN");
-        if (xsrf) {
-          this.storage.setItem("XSRF-TOKEN", xsrf);
-        }
         this.router.navigateByUrl("/products");
       },
       error: err => {
