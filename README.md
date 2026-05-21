@@ -58,16 +58,69 @@ Swagger api documentation (等待更新)
 
 
 ## Order Flow
-![spring-boot-service](readme-resource/spring-boot-service.drawio.png)  
-- step1: 前端點擊購買按鈕並送出Purchase DTO給後端，Purchase DTO包含member、customer、shipping address、order以及orderitem等資訊
-- step2: 由後端的CheckoutController來處理該POST請求，並交由CheckoutService的placeOrder方法來處理訂單，該方法是一個事務處理用@Transactional註解，且該方法在IventoryService及CustomerOrderService幫助之下完成訂單處理。
-- step3: InventoryService的reserveInventory方法查看每個orderItem的數量並對數據庫更新庫存，考量到可能會發生更新丟失的問題，在update數據庫時使用原子更新，並在定義table時庫存欄位是unsigned，避免原子更新碰到負數問題。即使有一位客戶買的商品剛好被買完能觸發CheckoutService的事務回滾，所以才把@Transactional放在外部的方法中，確保在CheckoutService的placeOrder方法中有更改到數據庫的操作都做回滾。
-- step4: 保留完商品，開始將此筆訂單存入數據庫，藉由CustomerOrderService的saveOrder方法，參數會傳入member、customer及order，目的是透過JPA對他們之間關聯的設定使得對member進行一次save操作即可將三項數據都寫入資料庫。可能在customer會發生幻讀的問題，由於發生的前提是同個member在不同裝置上搶購商品並填入相同的customer，所以在定義customer table可以放心用unique key來解決讓其中一個裝置的搶購失敗，若失敗觸發外部的@Transactional做事務回滾。
-- step5: InventoryService的reserveInventory方法和CustomerOrderService的saveOrder方法，若錯誤會拋出不同的http status code讓前端針對不同錯誤做處理。
 
+```mermaid
+sequenceDiagram
+    autonumber
+    participant 前端
+    participant Gateway
+    participant CheckoutController
+    participant CheckoutService
+    participant InventoryClient
+    participant InventoryService
+    participant ProductDB as Product DB
+    participant CustomerOrderService
+    participant OrderDB as Order DB
 
-## Payment Flow
-![payment-flow](readme-resource/payment-flow.png)
+    前端->>Gateway: POST /checkout/purchase<br/>(Purchase DTO: Member, Customer,<br/>ShippingAddress, Order, OrderItems)
+    Gateway->>CheckoutController: 路由至 OrderService
+
+    CheckoutController->>CheckoutService: placeOrder(purchase)
+    Note over CheckoutService: 開啟 @Transactional 事務
+
+    CheckoutService->>InventoryClient: reserveInventory(Set<ReserveItemRequest>)
+    Note over InventoryClient: Feign HTTP 跨服務呼叫
+    InventoryClient->>Gateway: POST /inventory/reserve<br/>(X-Internal-Secret 驗證)
+    Gateway->>InventoryService: 路由至 ProductService
+
+    loop 每一個 OrderItem
+        InventoryService->>ProductDB: 原子更新庫存<br/>UPDATE ... SET unitsInStock = unitsInStock - quantity<br/>WHERE unitsInStock >= quantity AND active = true
+        ProductDB-->>InventoryService: 更新列數 (0 = 庫存不足)
+        alt 庫存不足
+            InventoryService-->>CheckoutService: 拋出例外 (409 CONFLICT)
+            Note over CheckoutService: @Transactional 事務回滾
+            CheckoutService-->>前端: 406 NOT_ACCEPTABLE
+        end
+    end
+
+    InventoryService-->>CheckoutService: 庫存扣減成功
+
+    CheckoutService->>CheckoutService: 產生 orderTrackingNumber (UUID)<br/>設定訂單狀態為「等待付款」
+
+    CheckoutService->>CustomerOrderService: saveOrder(member, customer, order)
+    CustomerOrderService->>OrderDB: 查詢 Member 是否存在
+    OrderDB-->>CustomerOrderService: 已存在的 Member
+    CustomerOrderService->>OrderDB: 查詢相同 Customer 是否存在<br/>(firstName + lastName + email + memberId)
+    OrderDB-->>CustomerOrderService: 查詢結果
+
+    alt Customer 已存在
+        CustomerOrderService->>CustomerOrderService: 複用現有 Customer
+    end
+
+    Note over CustomerOrderService: 建立關聯<br/>Member → Customer → Order → OrderItems
+    CustomerOrderService->>OrderDB: memberRepository.save()<br/>(JPA Cascade ALL 一次寫入所有關聯資料)
+
+    alt Customer 唯一鍵衝突（幻讀）
+        OrderDB-->>CustomerOrderService: 拋出唯一鍵例外
+        Note over CheckoutService: @Transactional 事務回滾（含庫存）
+        CheckoutService-->>前端: 405 METHOD_NOT_ALLOWED
+    end
+
+    OrderDB-->>CustomerOrderService: 儲存成功
+    CustomerOrderService-->>CheckoutService: 儲存成功
+    Note over CheckoutService: 事務提交
+    CheckoutService-->>前端: 200 OK { orderTrackingNumber }
+```
 
 
 ## Project Set Up
