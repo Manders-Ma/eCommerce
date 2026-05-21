@@ -1,4 +1,4 @@
-package com.example.productservice.config;
+package com.example.orderservice.config;
 
 import java.util.List;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +13,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import com.example.productservice.filter.JWTTokenValidatorFilter;
+import com.example.orderservice.filter.JWTTokenValidatorFilter;
 
 @Configuration
 public class SecurityConfig {
@@ -21,8 +21,7 @@ public class SecurityConfig {
     private static final String FRONTEND_ORIGIN = "http://localhost:4200";
 
     private static final String[] ADMIN_WRITE_APIS = {
-        "/products/**",
-        "/product-category/**"
+        "/shipping-address/**"
     };
 
     @Bean
@@ -40,7 +39,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.PUT, ADMIN_WRITE_APIS).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, ADMIN_WRITE_APIS).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, ADMIN_WRITE_APIS).hasRole("ADMIN")
-                        .requestMatchers("/inventory/**").hasRole("ADMIN")
+                        .requestMatchers("/checkout/**").authenticated()
+                        .requestMatchers("/pay/**").authenticated()
                         .anyRequest().permitAll()
                 )
                 .build();
