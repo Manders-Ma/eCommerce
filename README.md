@@ -1,8 +1,86 @@
 # Table of Contents
-1. [Client-Side Features](#client-side-features)
-2. [ER Diagram and Relational Schema Diagram](#er-diagram-and-relational-schema-diagram)
-3. [Order Flow](#order-flow)
-4. [Project Set Up](#project-set-up)
+1. [System Architecture](#system-architecture)
+2. [Client-Side Features](#client-side-features)
+3. [ER Diagram and Relational Schema Diagram](#er-diagram-and-relational-schema-diagram)
+4. [Order Flow](#order-flow)
+5. [Project Set Up](#project-set-up)
+
+## System Architecture
+
+後端採用 Spring Cloud 微服務架構：透過 **Eureka** 做服務註冊與發現，**Spring Cloud Gateway** 作為前端的唯一入口並依路徑將請求負載均衡到後端微服務。`OrderService` 與 `ProductService` 之間的內部呼叫透過 **OpenFeign**，並以 `X-Internal-Secret` 標頭做認證，繞過 Gateway 直接走 Eureka 解析的服務名稱。
+
+```mermaid
+flowchart TB
+    subgraph Client["Client (Angular)"]
+        direction TB
+        Browser["瀏覽器<br/>localhost:4200"]
+        Guards["AuthGuard / RoleGuard<br/>HTTP Interceptor<br/>(JWT + CSRF)"]
+        RxJS["RxJS BehaviorSubject<br/>購物車狀態管理"]
+        Browser --- Guards
+        Browser --- RxJS
+    end
+
+    subgraph Backend["Backend (Spring Cloud Microservices)"]
+        direction TB
+
+        Gateway["<b>Gateway</b><br/>Spring Cloud Gateway (WebFlux)<br/>Port 8080<br/>路由 / CORS / 負載均衡"]
+
+        Eureka[("<b>DiscoveryService</b><br/>Eureka Server<br/>Port 8010<br/>服務註冊中心")]
+
+        subgraph Services["Business Microservices (動態 Port)"]
+            direction LR
+            OrderSvc["<b>OrderService</b><br/>Member / Checkout<br/>Order / Payment<br/>Shipping Address"]
+            ProductSvc["<b>ProductService</b><br/>Product / Category<br/>Inventory"]
+        end
+
+        OrderDB[("PostgreSQL<br/>member, customer,<br/>orders, order_item,<br/>shipping_address")]
+        ProductDB[("PostgreSQL<br/>product,<br/>product_category")]
+    end
+
+    LinePay["LINE Pay<br/>Sandbox API<br/>(外部金流)"]
+
+    Browser -->|"HTTPS 請求<br/>JWT in Header"| Gateway
+
+    Gateway -->|"/member/**<br/>/checkout/**<br/>/pay/**<br/>/order-history<br/>/shipping-address/**"| OrderSvc
+    Gateway -->|"/products/**<br/>/product-category/**<br/>/inventory/**"| ProductSvc
+
+    OrderSvc -.->|註冊 / 心跳| Eureka
+    ProductSvc -.->|註冊 / 心跳| Eureka
+    Gateway -.->|查詢服務位址| Eureka
+
+    OrderSvc ==>|"OpenFeign<br/>lb://ProductService<br/>X-Internal-Secret"| ProductSvc
+
+    OrderSvc --- OrderDB
+    ProductSvc --- ProductDB
+
+    OrderSvc <-->|"HMAC-SHA256 簽章<br/>付款請求 / 確認"| LinePay
+
+    classDef client fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef gateway fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef eureka fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef service fill:#e8f5e9,stroke:#388e3c,stroke-width:2px
+    classDef db fill:#fce4ec,stroke:#c2185b,stroke-width:1px
+    classDef external fill:#ffebee,stroke:#d32f2f,stroke-width:2px,stroke-dasharray: 5 5
+
+    class Browser,Guards,RxJS client
+    class Gateway gateway
+    class Eureka eureka
+    class OrderSvc,ProductSvc service
+    class OrderDB,ProductDB db
+    class LinePay external
+```
+
+**元件說明**
+
+| 元件 | 角色 |
+|---|---|
+| **Client (Angular)** | SPA 前端，含 AuthGuard / RoleGuard、HTTP Interceptor（自動附帶 JWT 與 CSRF token）、以 RxJS BehaviorSubject 推送購物車狀態 |
+| **Gateway** (8080) | 唯一對外入口，依路徑路由到對應微服務，並透過 `lb://` 由 Eureka 做負載均衡；同時處理 CORS |
+| **DiscoveryService / Eureka** (8010) | 服務註冊中心，所有後端服務啟動時向其註冊，Gateway / OrderService 透過它解析服務位址 |
+| **OrderService** | 處理會員、訂單、付款、收件地址；透過 Feign 呼叫 ProductService 扣庫存；串接 LINE Pay |
+| **ProductService** | 商品、商品分類與庫存管理；庫存扣減採用原子更新 SQL |
+| **PostgreSQL** | 兩個微服務分別擁有自己的 schema，符合每服務一資料庫的原則 |
+| **LINE Pay Sandbox** | 外部金流，OrderService 以 HMAC-SHA256 簽章串接付款請求與確認 |
 
 ## Client-Side Features
 > **用戶頁面 (身分: Visitor, User, Admin)**  
@@ -130,9 +208,9 @@ cd client/
 npm install
 ```
 
-3. 建立後端微服務的環境設定（PostgreSQL）
+3. 建立後端微服務的環境設定
 
-`OrderService` 和 `ProductService` 各自需要一份 `env.properties`，兩者格式相同。
+`OrderService` 和 `ProductService` 各自需要一份 `env.properties`。
 
 ```powershell
 copy backend\OrderService\src\main\resources\env.properties.example `
@@ -142,8 +220,9 @@ copy backend\ProductService\src\main\resources\env.properties.example `
      backend\ProductService\src\main\resources\env.properties
 ```
 
-編輯兩份 `env.properties`（此檔已被 .gitignore 忽略，請勿將真實憑證推到版本庫），填入 PostgreSQL 連線參數及內部服務金鑰：
+編輯兩份 `env.properties`（此檔已被 .gitignore 忽略，請勿將真實憑證推到版本庫）。
 
+**OrderService**（含 LINE Pay 憑證）：
 ```
 DB_HOST=localhost
 DB_PORT=5432
@@ -151,7 +230,22 @@ DB_NAME=ecommerce
 DB_USERNAME=postgres
 DB_PASSWORD=your_db_password
 
-# 微服務間內部呼叫的共用密鑰（OrderService 與 ProductService 須填入相同值）
+# 微服務間內部呼叫的共用密鑰（與 ProductService 須填入相同值）
+INTERNAL_SECRET=your_internal_secret
+
+# 至 LINE Pay 申請 sandbox 帳戶後取得
+LINEPAY_CHANNEL_ID=your_channel_id
+LINEPAY_CHANNEL_SECRET=your_channel_secret
+```
+
+**ProductService**：
+```
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=ecommerce
+DB_USERNAME=postgres
+DB_PASSWORD=your_db_password
+
 INTERNAL_SECRET=your_internal_secret
 ```
 
@@ -159,16 +253,4 @@ INTERNAL_SECRET=your_internal_secret
 
 專案已將 PostgreSQL 用的腳本放在 `db-script/postgres/`（`01-create-tables.sql`, `02-insert-sample-data.sql`）。推薦使用 `psql`（或 pgAdmin）執行。
 
-
-5. [申請Line Pay sandbox帳戶取得ChannelId和ChannelSecret](https://pay.line.me/th/developers/main/main)
-
-6. add a file as PaymentConstants. in server/src/main/java/com\manders/ecommerce/constants/
-```
-public class PaymentConstants {
-  public static final String PaymentBaseUrl = "https://sandbox-api-pay.line.me";
-  public static final String RequestUri = "/v3/payments/request";
-  public static final String BaseUri = "/v3/payments";
-  public static final String ChannelId = {your ChannelId};
-  public static final String ChannelSecret = {your ChannelSecret};
-}
-```
+5. [申請 LINE Pay sandbox 帳戶取得 Channel ID 和 Channel Secret](https://pay.line.me/th/developers/main/main)，填入上方 `OrderService` 的 `env.properties`。
