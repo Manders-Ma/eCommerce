@@ -1,14 +1,16 @@
 package com.example.orderservice.infrastructure.payment.linepay.dto;
 
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 
 import java.util.List;
 
-@Data
+@Getter
+@Builder
 public class CheckoutPaymentRequestForm {
-  private int amount;
-  private String currency;
-  private String orderId;
-  private List<ProductPackageForm> packages;
-  private RedirectUrls redirectUrls;
+    private final int amount;
+    private final String currency;
+    private final String orderId;
+    private final List<ProductPackageForm> packages;
+    private final RedirectUrls redirectUrls;
 }

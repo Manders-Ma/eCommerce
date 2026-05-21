@@ -10,126 +10,130 @@ import com.example.orderservice.infrastructure.payment.linepay.client.PaymentUti
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
-import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class PaymentServiceImpl implements PaymentService {
-  
-  @Autowired
-  private PaymentUtil paymentUtil;
-  
-  @Autowired
-  private OrderRepository orderRepository;
-  
-  private String channelId = LinePayConfig.ChannelId;
-  private String channelSecret = LinePayConfig.ChannelSecret;
-  private String paymentBaseUrl = LinePayConfig.PaymentBaseUrl;
-  private String requestUri = LinePayConfig.RequestUri;
-  private String baseUri = LinePayConfig.BaseUri;
 
-  @Override
-  public String sendRequestAPI(String orderTrackingNumber) {
-    Order order = orderRepository.findByOrderTrackingNumber(orderTrackingNumber);
-    if (order == null) {
-      throw new IllegalArgumentException("Order not found: " + orderTrackingNumber);
-    }
-    
-    CheckoutPaymentRequestForm form = new CheckoutPaymentRequestForm();
+    private final PaymentUtil paymentUtil;
+    private final OrderRepository orderRepository;
+    private final ObjectMapper objectMapper;
+    private final LinePayConfig linePayConfig;
 
-    form.setAmount(order.getTotalPrice());
-    form.setCurrency("TWD");
-    form.setOrderId(orderTrackingNumber);
-
-    ProductPackageForm productPackageForm = new ProductPackageForm();
-    productPackageForm.setId("package");
-    productPackageForm.setName("ecommerce");
-    productPackageForm.setAmount(order.getTotalPrice());
-    
-    for(OrderItem orderItem: order.getOrderItems()) {
-      ProductForm productForm = new ProductForm();
-      productForm.setName(orderItem.getName());
-      productForm.setPrice(orderItem.getUnitPrice());
-      productForm.setQuantity(orderItem.getQuantity());
-      productPackageForm.add(productForm);
+    public PaymentServiceImpl(PaymentUtil paymentUtil,
+                              OrderRepository orderRepository,
+                              ObjectMapper objectMapper,
+                              LinePayConfig linePayConfig) {
+        this.paymentUtil = paymentUtil;
+        this.orderRepository = orderRepository;
+        this.objectMapper = objectMapper;
+        this.linePayConfig = linePayConfig;
     }
 
-    form.setPackages(Collections.singletonList(productPackageForm));
-    RedirectUrls redirectUrls = new RedirectUrls();
-    redirectUrls.setConfirmUrl("http://localhost:4200/confirm-pay");
-    redirectUrls.setCancelUrl("");
-    form.setRedirectUrls(redirectUrls);
-    
-    ObjectMapper mapper = new ObjectMapper();
-    String url = "";
-    try {
-      String nonce = UUID.randomUUID().toString();
-      String body = mapper.writeValueAsString(form);
-      String signature = generateSignature(channelSecret, 
-          channelSecret + requestUri + body + nonce);
-      
-      JsonNode response = paymentUtil.sendPostAPI(channelId, nonce, signature, paymentBaseUrl + requestUri, body);
-      JsonNode paymentUrl = response.path("info").path("paymentUrl").path("web");
-      if (paymentUrl.isMissingNode() || paymentUrl.isNull() || paymentUrl.asText().isBlank()) {
-        String returnCode = response.path("returnCode").asText("unknown");
-        String returnMessage = response.path("returnMessage").asText("Payment API did not return a web payment URL");
-        throw new IllegalStateException("Payment API request failed: " + returnCode + " - " + returnMessage);
-      }
-      url = paymentUrl.asText();
-    } catch (JsonProcessingException e) {
-      throw new IllegalStateException("Unable to serialize payment request", e);
+    @Override
+    public String sendRequestAPI(String orderTrackingNumber) {
+        Order order = orderRepository.findByOrderTrackingNumber(orderTrackingNumber);
+        if (order == null) {
+            throw new IllegalArgumentException("Order not found: " + orderTrackingNumber);
+        }
+
+        List<ProductForm> products = order.getOrderItems().stream()
+                .map(item -> ProductForm.builder()
+                        .name(item.getName())
+                        .price(item.getUnitPrice())
+                        .quantity(item.getQuantity())
+                        .build())
+                .toList();
+
+        ProductPackageForm productPackage = ProductPackageForm.builder()
+                .id("package")
+                .name("ecommerce")
+                .amount(order.getTotalPrice())
+                .products(products)
+                .build();
+
+        CheckoutPaymentRequestForm form = CheckoutPaymentRequestForm.builder()
+                .amount(order.getTotalPrice())
+                .currency("TWD")
+                .orderId(orderTrackingNumber)
+                .packages(List.of(productPackage))
+                .redirectUrls(RedirectUrls.builder()
+                        .confirmUrl("http://localhost:4200/confirm-pay")
+                        .cancelUrl("")
+                        .build())
+                .build();
+
+        try {
+            String nonce = UUID.randomUUID().toString();
+            String body = objectMapper.writeValueAsString(form);
+            String signature = generateSignature(
+                    linePayConfig.getChannelSecret(),
+                    linePayConfig.getChannelSecret() + linePayConfig.getRequestUri() + body + nonce);
+
+            JsonNode response = paymentUtil.sendPostAPI(
+                    linePayConfig.getChannelId(), nonce, signature,
+                    linePayConfig.getBaseUrl() + linePayConfig.getRequestUri(), body);
+
+            JsonNode paymentUrl = response.path("info").path("paymentUrl").path("web");
+            if (paymentUrl.isMissingNode() || paymentUrl.isNull() || paymentUrl.asText().isBlank()) {
+                String returnCode = response.path("returnCode").asText("unknown");
+                String returnMessage = response.path("returnMessage").asText("Payment API did not return a web payment URL");
+                throw new IllegalStateException("Payment API request failed: " + returnCode + " - " + returnMessage);
+            }
+            return paymentUrl.asText();
+        } catch (JsonProcessingException e) {
+            throw new IllegalStateException("Unable to serialize payment request", e);
+        }
     }
-    
-    return url;
-  }
-  
-  @Override
-  public void sendConfirmAPI(String transactionId, String orderTrackingNumber) throws JsonProcessingException {
-    Order order = orderRepository.findByOrderTrackingNumber(orderTrackingNumber);
-    if (order == null) {
-      throw new IllegalArgumentException("Order not found: " + orderTrackingNumber);
+
+    @Override
+    public void sendConfirmAPI(String transactionId, String orderTrackingNumber) throws JsonProcessingException {
+        Order order = orderRepository.findByOrderTrackingNumber(orderTrackingNumber);
+        if (order == null) {
+            throw new IllegalArgumentException("Order not found: " + orderTrackingNumber);
+        }
+
+        ConfirmData confirmData = ConfirmData.builder()
+                .amount(order.getTotalPrice())
+                .currency("TWD")
+                .build();
+
+        String confirmUri = linePayConfig.getBaseUri() + "/" + transactionId + "/confirm";
+        String body = objectMapper.writeValueAsString(confirmData);
+        String nonce = UUID.randomUUID().toString();
+        String signature = generateSignature(
+                linePayConfig.getChannelSecret(),
+                linePayConfig.getChannelSecret() + confirmUri + body + nonce);
+
+        JsonNode response = paymentUtil.sendPostAPI(
+                linePayConfig.getChannelId(), nonce, signature,
+                linePayConfig.getBaseUrl() + confirmUri, body);
+
+        if (!"0000".equals(response.path("returnCode").asText())) {
+            String returnCode = response.path("returnCode").asText("unknown");
+            String returnMessage = response.path("returnMessage").asText("Payment API confirm failed");
+            throw new IllegalStateException("Payment API confirm failed: " + returnCode + " - " + returnMessage);
+        }
+        order.setStatus(OrderStatus.PAYMENT_COMPLETED.getStatus());
+        orderRepository.save(order);
     }
-    
-    ConfirmData confirmData = new ConfirmData();
-    confirmData.setAmount(order.getTotalPrice());
-    confirmData.setCurrency("TWD");
-    ObjectMapper mapper = new ObjectMapper();
-    String confirmUri = baseUri + "/" + transactionId + "/confirm";
-    
-    String body = mapper.writeValueAsString(confirmData);
-    String nonce = UUID.randomUUID().toString();
-    String signature = generateSignature(channelSecret, 
-        channelSecret + confirmUri + body + nonce);
-    JsonNode response = paymentUtil.sendPostAPI(channelId, nonce, signature, paymentBaseUrl + confirmUri, body);
-    if (!"0000".equals(response.path("returnCode").asText())) {
-      String returnCode = response.path("returnCode").asText("unknown");
-      String returnMessage = response.path("returnMessage").asText("Payment API confirm failed");
-      throw new IllegalStateException("Payment API confirm failed: " + returnCode + " - " + returnMessage);
+
+    private String generateSignature(String channelSecret, String data) {
+        try {
+            Mac sha256HMAC = Mac.getInstance("HmacSHA256");
+            sha256HMAC.init(new SecretKeySpec(channelSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+            return Base64.getEncoder().encodeToString(sha256HMAC.doFinal(data.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new IllegalStateException("Failed to generate payment signature", e);
+        }
     }
-    order.setStatus(OrderStatus.PAYMENT_COMPLETED.getStatus());
-    orderRepository.save(order);
-  }
-  
-  public String generateSignature(String channelSecret, String data){
-    String signature = "";
-    try {
-      Mac sha256HMAC = Mac.getInstance("HmacSHA256");
-      SecretKeySpec secretKey = new SecretKeySpec(channelSecret.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-      sha256HMAC.init(secretKey);
-      byte[] hmacBytes = sha256HMAC.doFinal(data.getBytes(StandardCharsets.UTF_8));
-      signature = Base64.getEncoder().encodeToString(hmacBytes);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    
-    return signature;
-  }
-  
 }

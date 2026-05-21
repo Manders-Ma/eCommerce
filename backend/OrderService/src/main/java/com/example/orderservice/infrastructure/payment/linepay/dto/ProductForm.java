@@ -1,11 +1,12 @@
 package com.example.orderservice.infrastructure.payment.linepay.dto;
 
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 
-@Data
+@Getter
+@Builder
 public class ProductForm {
-  private String name;
-  private int quantity;
-  private int price;
-  
+    private final String name;
+    private final int quantity;
+    private final int price;
 }

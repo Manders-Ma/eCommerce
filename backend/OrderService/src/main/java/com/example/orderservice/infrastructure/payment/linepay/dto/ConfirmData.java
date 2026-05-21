@@ -1,9 +1,11 @@
 package com.example.orderservice.infrastructure.payment.linepay.dto;
 
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 
-@Data
+@Getter
+@Builder
 public class ConfirmData {
-  private int amount;
-  private String currency;
+    private final int amount;
+    private final String currency;
 }

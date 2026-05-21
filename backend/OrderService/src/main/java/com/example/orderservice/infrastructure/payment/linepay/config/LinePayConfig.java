@@ -1,9 +1,18 @@
 package com.example.orderservice.infrastructure.payment.linepay.config;
 
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@ConfigurationProperties(prefix = "linepay")
+@Getter
+@Setter
 public class LinePayConfig {
-    public static final String PaymentBaseUrl = "https://sandbox-api-pay.line.me";
-    public static final String RequestUri = "/v3/payments/request";
-    public static final String BaseUri = "/v3/payments";
-    public static final String ChannelId = "2004339922";
-    public static final String ChannelSecret = "c1a484fa65b4c09f2b07c89529742d7b";
+    private String channelId;
+    private String channelSecret;
+    private String baseUrl;
+    private String requestUri;
+    private String baseUri;
 }

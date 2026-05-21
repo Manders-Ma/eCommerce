@@ -11,31 +11,34 @@ import org.springframework.web.client.RestTemplate;
 
 @Component
 public class PaymentUtil {
-  public JsonNode sendPostAPI(String channelId, String nonce, String signature, String url, String body) {
-    RestTemplate restTemplate = new RestTemplate();
-    
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(MediaType.APPLICATION_JSON);
-    headers.add("X-LINE-ChannelId", channelId);
-    headers.add("X-LINE-Authorization-Nonce", nonce);
-    headers.add("X-LINE-Authorization", signature);
-    
-    HttpEntity<String> request = new HttpEntity<String>(body, headers);
-    String response = null;
-    try {
-      response = restTemplate.postForObject(url, request, String.class);
-    } catch (RestClientResponseException e) {
-      response = e.getResponseBodyAsString();
+
+    private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
+
+    public PaymentUtil(RestTemplate restTemplate, ObjectMapper objectMapper) {
+        this.restTemplate = restTemplate;
+        this.objectMapper = objectMapper;
     }
-    ObjectMapper mapper = new ObjectMapper();
-    JsonNode json = null;
-    
-    try {
-      json = mapper.readTree(response);
-    } catch (Exception e) {
-      throw new IllegalStateException("Unable to parse payment API response", e);
+
+    public JsonNode sendPostAPI(String channelId, String nonce, String signature, String url, String body) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.set("X-LINE-ChannelId", channelId);
+        headers.set("X-LINE-Authorization-Nonce", nonce);
+        headers.set("X-LINE-Authorization", signature);
+
+        HttpEntity<String> request = new HttpEntity<>(body, headers);
+        String response;
+        try {
+            response = restTemplate.postForObject(url, request, String.class);
+        } catch (RestClientResponseException e) {
+            response = e.getResponseBodyAsString();
+        }
+
+        try {
+            return objectMapper.readTree(response);
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to parse payment API response", e);
+        }
     }
-    
-    return json;
-  }
 }

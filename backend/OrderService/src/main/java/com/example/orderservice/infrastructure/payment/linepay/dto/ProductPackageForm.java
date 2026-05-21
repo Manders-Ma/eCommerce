@@ -1,23 +1,15 @@
 package com.example.orderservice.infrastructure.payment.linepay.dto;
 
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Builder
 public class ProductPackageForm {
-  private String id;
-  private String name;
-  private int amount;
-  private List<ProductForm> products;
-  
-  public void add(ProductForm product) {
-    if (this.products == null) {
-      this.products = new ArrayList<>();
-    }
-    
-    this.products.add(product);
-  }
-  
+    private final String id;
+    private final String name;
+    private final int amount;
+    private final List<ProductForm> products;
 }

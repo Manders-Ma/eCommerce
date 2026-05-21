@@ -1,9 +1,11 @@
 package com.example.orderservice.infrastructure.payment.linepay.dto;
 
-import lombok.Data;
+import lombok.Builder;
+import lombok.Getter;
 
-@Data
+@Getter
+@Builder
 public class RedirectUrls {
-  private String confirmUrl;
-  private String cancelUrl;
+    private final String confirmUrl;
+    private final String cancelUrl;
 }
