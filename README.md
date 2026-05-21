@@ -1,13 +1,8 @@
 # Table of Contents
-1. [Server-Side API Documentation](#server-side-api-documentation)
-2. [Client-Side Features](#client-side-features)
-3. [ER Diagram and Relational Schema Diagram](#er-diagram-and-relational-schema-diagram)
-4. [Order Flow](#order-flow)
-5. [Payment Flow](#payment-flow)
-6. [Project Set Up](#project-set-up)  
-
-## Server-Side API Documentation
-Swagger api documentation (等待更新)
+1. [Client-Side Features](#client-side-features)
+2. [ER Diagram and Relational Schema Diagram](#er-diagram-and-relational-schema-diagram)
+3. [Order Flow](#order-flow)
+4. [Project Set Up](#project-set-up)
 
 ## Client-Side Features
 > **用戶頁面 (身分: Visitor, User, Admin)**  
@@ -135,14 +130,19 @@ cd client/
 npm install
 ```
 
-3. 建立 server 的環境設定（PostgreSQL）
+3. 建立後端微服務的環境設定（PostgreSQL）
+
+`OrderService` 和 `ProductService` 各自需要一份 `env.properties`，兩者格式相同。
 
 ```powershell
-cd server/src/main/resources/
-copy env.properties.example env.properties
+copy backend\OrderService\src\main\resources\env.properties.example `
+     backend\OrderService\src\main\resources\env.properties
+
+copy backend\ProductService\src\main\resources\env.properties.example `
+     backend\ProductService\src\main\resources\env.properties
 ```
 
-編輯 `env.properties`（此檔已被 .gitignore 忽略，請勿將真實憑證推到版本庫），填入你的 PostgreSQL 連線參數，例如：
+編輯兩份 `env.properties`（此檔已被 .gitignore 忽略，請勿將真實憑證推到版本庫），填入 PostgreSQL 連線參數及內部服務金鑰：
 
 ```
 DB_HOST=localhost
@@ -150,6 +150,9 @@ DB_PORT=5432
 DB_NAME=ecommerce
 DB_USERNAME=postgres
 DB_PASSWORD=your_db_password
+
+# 微服務間內部呼叫的共用密鑰（OrderService 與 ProductService 須填入相同值）
+INTERNAL_SECRET=your_internal_secret
 ```
 
 4. 在本機建立資料庫並執行 SQL 腳本
