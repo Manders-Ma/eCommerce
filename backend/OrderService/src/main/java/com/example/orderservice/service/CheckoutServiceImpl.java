@@ -1,6 +1,8 @@
 package com.example.orderservice.service;
 
+import com.example.orderservice.client.InventoryClient;
 import com.example.orderservice.dto.request.Purchase;
+import com.example.orderservice.dto.request.ReserveItemRequest;
 import com.example.orderservice.dto.response.PurchaseResponse;
 import com.example.orderservice.entity.Order;
 import com.example.orderservice.entity.OrderItem;
@@ -14,15 +16,16 @@ import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class CheckoutServiceImpl implements CheckoutService {
-  
-  @Autowired
-  private InventoryService inventoryService;
-  
-  @Autowired
-  private CustomerOrderService customerOrderService;
+
+    @Autowired
+    private InventoryClient inventoryClient;
+
+    @Autowired
+    private CustomerOrderService customerOrderService;
   
   
   @Override
@@ -37,7 +40,15 @@ public class CheckoutServiceImpl implements CheckoutService {
     Set<OrderItem> orderItems = purchase.getOrderItems();
     
     try {
-      this.inventoryService.reserveInventory(orderItems);
+      Set<ReserveItemRequest> reserveRequests = orderItems.stream()
+          .map(item -> {
+            ReserveItemRequest req = new ReserveItemRequest();
+            req.setProductId(item.getProductId());
+            req.setQuantity(item.getQuantity());
+            return req;
+          })
+          .collect(Collectors.toSet());
+      this.inventoryClient.reserveInventory(reserveRequests);
       
       // populate order with order items
       orderItems.forEach(item -> order.add(item));

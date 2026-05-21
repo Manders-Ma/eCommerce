@@ -1,6 +1,7 @@
 package com.example.productservice.controller;
 
 import com.example.productservice.dto.request.ProductCreation;
+import com.example.productservice.dto.request.ReserveItemRequest;
 import com.example.productservice.dto.response.MessageResponse;
 import com.example.productservice.entity.Product;
 import com.example.productservice.service.InventoryService;
@@ -8,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Set;
 
 @RestController
 @RequestMapping("/inventory")
@@ -45,6 +48,16 @@ public class InventoryController {
     }
 
     return response;
+  }
+
+  @PostMapping("/reserve")
+  public ResponseEntity<MessageResponse> reserveInventory(@RequestBody Set<ReserveItemRequest> items) {
+    try {
+      inventoryService.reserveInventory(items);
+      return ResponseEntity.ok().build();
+    } catch (com.example.productservice.exception.InsufficientInventoryException e) {
+      return ResponseEntity.status(HttpStatus.CONFLICT).body(new MessageResponse(e.getMessage()));
+    }
   }
 
   @PostMapping

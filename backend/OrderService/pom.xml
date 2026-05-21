@@ -55,6 +55,12 @@
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 
+		<!-- Feign for service-to-service HTTP calls -->
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-openfeign</artifactId>
+		</dependency>
+
 		<!-- PostgreSQL driver (runtime only) - adjust if you use a different DB -->
 		<dependency>
 			<groupId>org.postgresql</groupId>

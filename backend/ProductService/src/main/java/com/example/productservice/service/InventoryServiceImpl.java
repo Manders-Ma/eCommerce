@@ -1,7 +1,7 @@
 package com.example.productservice.service;
 
 import com.example.productservice.dto.request.ProductCreation;
-import com.example.productservice.entity.OrderItem;
+import com.example.productservice.dto.request.ReserveItemRequest;
 import com.example.productservice.entity.Product;
 import com.example.productservice.entity.ProductCategory;
 import com.example.productservice.exception.InsufficientInventoryException;
@@ -14,22 +14,22 @@ import java.util.Set;
 
 @Service
 public class InventoryServiceImpl implements InventoryService {
-  
-  @Autowired
-  private ProductRepository productRepository;
 
-  @Override
-  @Transactional(rollbackFor = Exception.class)
-  public void reserveInventory(Set<OrderItem> orderItems) {
-    for (OrderItem item : orderItems) {
-      int updatedRows = productRepository.reserveInventory(item.getProductId(), item.getQuantity());
-      if (updatedRows == 0) {
-        throw new InsufficientInventoryException(
-            "商品 ID: " + item.getProductId() + " 庫存不足，無法預留"
-        );
-      }
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void reserveInventory(Set<ReserveItemRequest> items) {
+        for (ReserveItemRequest item : items) {
+            int updatedRows = productRepository.reserveInventory(item.getProductId(), item.getQuantity());
+            if (updatedRows == 0) {
+                throw new InsufficientInventoryException(
+                        "商品 ID: " + item.getProductId() + " 庫存不足，無法預留"
+                );
+            }
+        }
     }
-  }
 
   @Override
   public void deleteProductById(Long id) {

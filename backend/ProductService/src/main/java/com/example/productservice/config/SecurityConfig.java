@@ -1,6 +1,7 @@
 package com.example.productservice.config;
 
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -13,6 +14,7 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import com.example.productservice.filter.InternalServiceFilter;
 import com.example.productservice.filter.JWTTokenValidatorFilter;
 
 @Configuration
@@ -25,6 +27,9 @@ public class SecurityConfig {
         "/product-category/**"
     };
 
+    @Autowired
+    private InternalServiceFilter internalServiceFilter;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
@@ -35,11 +40,14 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .addFilterBefore(new JWTTokenValidatorFilter(), BasicAuthenticationFilter.class)
+                .addFilterAfter(internalServiceFilter, BasicAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, ADMIN_WRITE_APIS).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, ADMIN_WRITE_APIS).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, ADMIN_WRITE_APIS).hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PATCH, ADMIN_WRITE_APIS).hasRole("ADMIN")
+                        // only OrderService (internal) may call this — checked via X-Internal-Secret header
+                        .requestMatchers(HttpMethod.POST, "/inventory/reserve").hasRole("INTERNAL")
                         .requestMatchers("/inventory/**").hasRole("ADMIN")
                         .anyRequest().permitAll()
                 )
