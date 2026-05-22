@@ -7,7 +7,7 @@
 
 ## System Architecture
 
-後端採用 Spring Cloud 微服務架構：透過 **Eureka** 做服務註冊與發現，**Spring Cloud Gateway** 作為前端的唯一入口並依路徑將請求負載均衡到後端微服務。`OrderService` 與 `ProductService` 之間的內部呼叫透過 **OpenFeign**，並以 `X-Internal-Secret` 標頭做認證，繞過 Gateway 直接走 Eureka 解析的服務名稱。
+後端採用 Spring Cloud 微服務架構：透過 **Eureka** 做服務註冊與發現，**Spring Cloud Gateway** 作為唯一入口同時管理「外部請求」與「內部服務請求」：外部請求走 `/products/**`、`/checkout/**` 等公開路由；內部服務間呼叫 (如 OrderService → ProductService 預扣庫存) 走 `/internal/**` 前綴，由 Gateway 簽發短期 HMAC JWT (`X-Gateway-Auth` header) 給下游服務做驗證，取代過去共用 secret 的機制。
 
 ```mermaid
 flowchart TB
@@ -48,7 +48,8 @@ flowchart TB
     ProductSvc -.->|註冊 / 心跳| Eureka
     Gateway -.->|查詢服務位址| Eureka
 
-    OrderSvc ==>|"OpenFeign<br/>lb://ProductService<br/>X-Internal-Secret"| ProductSvc
+    OrderSvc ==>|"OpenFeign<br/>lb://Gateway<br/>/internal/inventory/**"| Gateway
+    Gateway ==>|"Gateway 簽 JWT<br/>X-Gateway-Auth header<br/>StripPrefix=1"| ProductSvc
 
     OrderSvc --- OrderDB
     ProductSvc --- ProductDB
@@ -75,9 +76,9 @@ flowchart TB
 | 元件 | 角色 |
 |---|---|
 | **Client (Angular)** | SPA 前端，含 AuthGuard / RoleGuard、HTTP Interceptor（自動附帶 JWT 與 CSRF token）、以 RxJS BehaviorSubject 推送購物車狀態 |
-| **Gateway** (8080) | 唯一對外入口，依路徑路由到對應微服務，並透過 `lb://` 由 Eureka 做負載均衡；同時處理 CORS |
+| **Gateway** (8080) | 唯一對外與對內入口，依路徑路由到對應微服務、由 Eureka 做負載均衡；同時處理 CORS。`/internal/**` 路由為服務間專用，Gateway 會剝除外部送入的 `X-Gateway-Auth` 並重新簽發短期 HMAC JWT 給下游 |
 | **DiscoveryService / Eureka** (8010) | 服務註冊中心，所有後端服務啟動時向其註冊，Gateway / OrderService 透過它解析服務位址 |
-| **OrderService** | 處理會員、訂單、付款、收件地址；透過 Feign 呼叫 ProductService 扣庫存；串接 LINE Pay |
+| **OrderService** | 處理會員、訂單、付款、收件地址；透過 Feign 經由 Gateway (`lb://Gateway/internal/inventory/reserve`) 呼叫 ProductService 扣庫存；串接 LINE Pay |
 | **ProductService** | 商品、商品分類與庫存管理；庫存扣減採用原子更新 SQL |
 | **PostgreSQL** | 兩個微服務分別擁有自己的 schema，符合每服務一資料庫的原則 |
 | **LINE Pay Sandbox** | 外部金流，OrderService 以 HMAC-SHA256 簽章串接付款請求與確認 |
@@ -153,8 +154,10 @@ sequenceDiagram
 
     CheckoutService->>InventoryClient: reserveInventory(Set<ReserveItemRequest>)
     Note over InventoryClient: Feign HTTP 跨服務呼叫
-    InventoryClient->>Gateway: POST /inventory/reserve<br/>(X-Internal-Secret 驗證)
-    Gateway->>InventoryService: 路由至 ProductService
+    InventoryClient->>Gateway: POST /internal/inventory/reserve<br/>(lb://Gateway 內部路由)
+    Note over Gateway: 簽發短期 HMAC JWT<br/>注入 X-Gateway-Auth header<br/>StripPrefix=1
+    Gateway->>InventoryService: 路由至 ProductService<br/>(/inventory/reserve)
+    Note over InventoryService: GatewayInternalJwtFilter 驗 JWT 簽章<br/>授予 ROLE_INTERNAL
 
     loop 每一個 OrderItem
         InventoryService->>ProductDB: 原子更新庫存<br/>UPDATE ... SET unitsInStock = unitsInStock - quantity<br/>WHERE unitsInStock >= quantity AND active = true
@@ -210,9 +213,12 @@ npm install
 
 3. 建立後端微服務的環境設定
 
-`OrderService` 和 `ProductService` 各自需要一份 `env.properties`。
+`Gateway`、`OrderService`、`ProductService` 各自需要一份 `env.properties`。
 
 ```powershell
+copy backend\Gateway\src\main\resources\env.properties.example `
+     backend\Gateway\src\main\resources\env.properties
+
 copy backend\OrderService\src\main\resources\env.properties.example `
      backend\OrderService\src\main\resources\env.properties
 
@@ -220,7 +226,13 @@ copy backend\ProductService\src\main\resources\env.properties.example `
      backend\ProductService\src\main\resources\env.properties
 ```
 
-編輯兩份 `env.properties`（此檔已被 .gitignore 忽略，請勿將真實憑證推到版本庫）。
+編輯各 `env.properties`（此檔已被 .gitignore 忽略，請勿將真實憑證推到版本庫）。
+
+**Gateway**（負責簽發內部 JWT）：
+```
+# Gateway 簽發內部 JWT 的 HMAC 密鑰，須與 ProductService 填相同值（建議 ≥ 32 bytes）
+GATEWAY_INTERNAL_JWT_SECRET=your_gateway_internal_jwt_secret
+```
 
 **OrderService**（含 LINE Pay 憑證）：
 ```
@@ -230,13 +242,12 @@ DB_NAME=ecommerce
 DB_USERNAME=postgres
 DB_PASSWORD=your_db_password
 
-# 微服務間內部呼叫的共用密鑰（與 ProductService 須填入相同值）
-INTERNAL_SECRET=your_internal_secret
-
 # 至 LINE Pay 申請 sandbox 帳戶後取得
 LINEPAY_CHANNEL_ID=your_channel_id
 LINEPAY_CHANNEL_SECRET=your_channel_secret
 ```
+
+> OrderService 自此不需要任何內部 secret — 對 ProductService 的呼叫一律走 Gateway (`/internal/**`)，由 Gateway 簽發 JWT。
 
 **ProductService**：
 ```
@@ -246,7 +257,8 @@ DB_NAME=ecommerce
 DB_USERNAME=postgres
 DB_PASSWORD=your_db_password
 
-INTERNAL_SECRET=your_internal_secret
+# 驗證 Gateway 簽發的內部 JWT；須與 Gateway 填相同值
+GATEWAY_INTERNAL_JWT_SECRET=your_gateway_internal_jwt_secret
 ```
 
 4. 在本機建立資料庫並執行 SQL 腳本

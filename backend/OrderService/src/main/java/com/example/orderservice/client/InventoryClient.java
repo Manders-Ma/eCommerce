@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.Set;
 
-@FeignClient(name = "ProductService")
+@FeignClient(name = "Gateway")
 public interface InventoryClient {
 
-    @PostMapping("/inventory/reserve")
+    @PostMapping("/internal/inventory/reserve")
     void reserveInventory(@RequestBody Set<ReserveItemRequest> items);
 }
