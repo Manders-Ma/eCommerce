@@ -70,8 +70,6 @@ services:
       GATEWAY_INTERNAL_JWT_SECRET: ${GATEWAY_INTERNAL_JWT_SECRET}
       LINEPAY_CHANNEL_ID: ${LINEPAY_CHANNEL_ID}
       LINEPAY_CHANNEL_SECRET: ${LINEPAY_CHANNEL_SECRET}
-      # 容器內無 env.properties，改 optional 並靠上面的環境變數提供值
-      SPRING_CONFIG_IMPORT: optional:classpath:env.properties
       # 應用本身用隨機 port，actuator 固定在 8081 供 health check
       MANAGEMENT_SERVER_PORT: 8081
     depends_on:
@@ -102,7 +100,6 @@ services:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       GATEWAY_INTERNAL_JWT_SECRET: ${GATEWAY_INTERNAL_JWT_SECRET}
-      SPRING_CONFIG_IMPORT: optional:classpath:env.properties
       MANAGEMENT_SERVER_PORT: 8082
     depends_on:
       discovery-service:
