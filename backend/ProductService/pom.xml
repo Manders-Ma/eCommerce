@@ -37,6 +37,12 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 
+		<!-- Actuator：提供 /actuator/health 供 Docker health check 使用 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
 		<!-- Security filter chain, used here to apply CORS consistently -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

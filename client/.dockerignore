@@ -1,0 +1,7 @@
+# 避免 COPY . . 把本機這些目錄帶進 image：
+# node_modules 會覆蓋容器內 npm ci 安裝的依賴；dist/.angular 是建置產物與快取。
+node_modules
+dist
+.angular
+.vscode
+.git

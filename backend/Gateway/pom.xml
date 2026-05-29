@@ -40,6 +40,12 @@
 			<artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
 		</dependency>
 
+		<!-- Actuator：提供 /actuator/health 供 Docker health check 使用 -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
+
 		<!-- JJWT for signing internal service JWTs -->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>

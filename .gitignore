@@ -8,3 +8,6 @@
 # OS files
 .DS_Store
 Thumbs.db
+
+# Docker secrets — 含真實密碼，絕不可 commit
+.env

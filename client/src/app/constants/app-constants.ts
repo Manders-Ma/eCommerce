@@ -1,4 +1,4 @@
-import { environment } from "../../environments/environment.development";
+import { environment } from "../../environments/environment";
 
 export const AppConstants = {
     PURCHASE_URL: environment.baseUrl + "/checkout/purchase",

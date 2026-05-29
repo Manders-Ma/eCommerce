@@ -1,0 +1,136 @@
+# docker-compose 一次定義並啟動全部 5 個服務。
+# 密鑰從同目錄的 .env 檔自動載入（${VAR} substitution）。
+# 常用：docker compose build / up / down / logs -f <service>
+
+services:
+
+  # ── 服務註冊中心，必須最先啟動 ───────────────────────────────
+  discovery-service:
+    build:
+      context: ./backend/DiscoveryService
+      dockerfile: Dockerfile
+    image: ecommerce/discovery-service:latest
+    container_name: discovery-service
+    ports:
+      - "8010:8010"   # Eureka 儀表板：http://localhost:8010
+    environment:
+      # Eureka 自我註冊時用容器內可解析的服務名稱，而非 localhost
+      EUREKA_INSTANCE_HOSTNAME: discovery-service
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8010/actuator/health | grep -q UP"]
+      start_period: 30s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ecommerce-network
+
+  # ── API 閘道 ─────────────────────────────────────────────────
+  gateway:
+    build:
+      context: ./backend/Gateway
+      dockerfile: Dockerfile
+    image: ecommerce/gateway:latest
+    container_name: gateway
+    ports:
+      - "8080:8080"
+    environment:
+      # 覆蓋 application.properties 內寫死的 localhost:8010
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8010/eureka/
+      # 以容器 IP（而非主機名）向 Eureka 註冊，確保其他容器能路由到本服務
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      GATEWAY_INTERNAL_JWT_SECRET: ${GATEWAY_INTERNAL_JWT_SECRET}
+    depends_on:
+      discovery-service:
+        condition: service_healthy   # 等 Eureka 健康後才啟動
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP"]
+      start_period: 40s
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ecommerce-network
+
+  # ── 訂單服務（含 LINE Pay）──────────────────────────────────
+  order-service:
+    build:
+      context: ./backend/OrderService
+      dockerfile: Dockerfile
+    image: ecommerce/order-service:latest
+    container_name: order-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8010/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      GATEWAY_INTERNAL_JWT_SECRET: ${GATEWAY_INTERNAL_JWT_SECRET}
+      LINEPAY_CHANNEL_ID: ${LINEPAY_CHANNEL_ID}
+      LINEPAY_CHANNEL_SECRET: ${LINEPAY_CHANNEL_SECRET}
+      # 容器內無 env.properties，改 optional 並靠上面的環境變數提供值
+      SPRING_CONFIG_IMPORT: optional:classpath:env.properties
+      # 應用本身用隨機 port，actuator 固定在 8081 供 health check
+      MANAGEMENT_SERVER_PORT: 8081
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8081/actuator/health | grep -q UP"]
+      start_period: 60s
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ecommerce-network
+
+  # ── 商品服務（含庫存）───────────────────────────────────────
+  product-service:
+    build:
+      context: ./backend/ProductService
+      dockerfile: Dockerfile
+    image: ecommerce/product-service:latest
+    container_name: product-service
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://discovery-service:8010/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      GATEWAY_INTERNAL_JWT_SECRET: ${GATEWAY_INTERNAL_JWT_SECRET}
+      SPRING_CONFIG_IMPORT: optional:classpath:env.properties
+      MANAGEMENT_SERVER_PORT: 8082
+    depends_on:
+      discovery-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8082/actuator/health | grep -q UP"]
+      start_period: 60s
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ecommerce-network
+
+  # ── 前端（nginx 提供 Angular 並反向代理 /api）────────────────
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: ecommerce/client:latest
+    container_name: client
+    ports:
+      - "4200:80"   # 前端：http://localhost:4200
+    depends_on:
+      - gateway
+    networks:
+      - ecommerce-network
+
+# 自訂 bridge 網路：容器之間可用服務名稱互相解析（Docker 內建 DNS）
+networks:
+  ecommerce-network:
+    driver: bridge
