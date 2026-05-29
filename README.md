@@ -200,69 +200,106 @@ sequenceDiagram
 
 
 ## Project Set Up
-1. clone this repository
-```
-git clone https://github.com/Manders-Ma/eCommerce.git
+
+### 前置作業
+
+| 工具 | 說明 |
+|------|------|
+| Git | Clone 專案 |
+| [Docker Desktop](https://www.docker.com/products/docker-desktop/) | 容器化啟動（建議方式） |
+| Node.js + npm | 本機直接跑前端（非 Docker 時） |
+| JDK 21 + Maven | 本機直接跑後端（非 Docker 時） |
+
+### 環境變數（`.env`）
+
+所有密鑰統一放在專案根目錄的 `.env`
+```powershell
+Copy-Item .env.example .env
 ```
 
-2. install node_modules (client-side)
+開啟 `.env` 填入真實值：
+
+| 變數 | 用途 | 使用服務 |
+|------|------|---------|
+| `DB_HOST` | PostgreSQL 主機位址 | OrderService, ProductService |
+| `DB_PORT` | PostgreSQL 連接埠 | OrderService, ProductService |
+| `DB_NAME` | 資料庫名稱 | OrderService, ProductService |
+| `DB_USERNAME` | 資料庫帳號 | OrderService, ProductService |
+| `DB_PASSWORD` | 資料庫密碼 | OrderService, ProductService |
+| `GATEWAY_INTERNAL_JWT_SECRET` | 服務間 JWT 簽發密鑰（建議 ≥ 32 bytes） | Gateway, ProductService |
+| `LINEPAY_CHANNEL_ID` | LINE Pay Channel ID | OrderService |
+| `LINEPAY_CHANNEL_SECRET` | LINE Pay Channel Secret | OrderService |
+
+> LINE Pay Sandbox 帳戶申請：https://pay.line.me/th/developers/main/main
+
+---
+
+### 方式一：Docker（推薦）
+
+```powershell
+# 1. Clone 專案
+git clone https://github.com/Manders-Ma/eCommerce.git
+cd eCommerce
+
+# 2. 建立 .env（填入真實憑證）
+Copy-Item .env.example .env
+
+# 3. 建立所有 Docker image（首次約需 10–15 分鐘）
+docker compose build
+
+# 4. 啟動所有服務
+docker compose up
 ```
-cd client/
+
+啟動完成後：
+
+| 服務 | URL |
+|------|-----|
+| 前端（Angular） | http://localhost:4200 |
+| Eureka 儀表板 | http://localhost:8010 |
+| Gateway | http://localhost:8080 |
+
+```powershell
+# 停止並移除所有容器
+docker compose down
+
+# 修改程式碼後重建單一服務
+docker compose build <service-name>
+docker compose up -d <service-name>
+```
+
+---
+
+### 方式二：本機直接執行（非 Docker）
+
+```powershell
+# 1. Clone 專案
+git clone https://github.com/Manders-Ma/eCommerce.git
+cd eCommerce
+
+# 2. 建立 .env（各後端服務啟動時自動從根目錄讀取）
+Copy-Item .env.example .env
+
+# 3. 安裝前端依賴
+cd client
 npm install
 ```
 
-3. 建立後端微服務的環境設定
-
-`Gateway`、`OrderService`、`ProductService` 各自需要一份 `env.properties`。
+依序在各自終端機啟動服務（DiscoveryService 必須最先啟動）：
 
 ```powershell
-copy backend\Gateway\src\main\resources\env.properties.example `
-     backend\Gateway\src\main\resources\env.properties
+# 終端機 1 — 服務註冊中心
+cd backend\DiscoveryService && .\mvnw spring-boot:run
 
-copy backend\OrderService\src\main\resources\env.properties.example `
-     backend\OrderService\src\main\resources\env.properties
+# 終端機 2 — 商品服務
+cd backend\ProductService && .\mvnw spring-boot:run
 
-copy backend\ProductService\src\main\resources\env.properties.example `
-     backend\ProductService\src\main\resources\env.properties
+# 終端機 3 — 訂單服務
+cd backend\OrderService && .\mvnw spring-boot:run
+
+# 終端機 4 — API 閘道
+cd backend\Gateway && .\mvnw spring-boot:run
+
+# 終端機 5 — 前端
+cd client && npm start
 ```
-
-編輯各 `env.properties`（此檔已被 .gitignore 忽略，請勿將真實憑證推到版本庫）。
-
-**Gateway**（負責簽發內部 JWT）：
-```
-# Gateway 簽發內部 JWT 的 HMAC 密鑰，須與 ProductService 填相同值（建議 ≥ 32 bytes）
-GATEWAY_INTERNAL_JWT_SECRET=your_gateway_internal_jwt_secret
-```
-
-**OrderService**（含 LINE Pay 憑證）：
-```
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=ecommerce
-DB_USERNAME=postgres
-DB_PASSWORD=your_db_password
-
-# 至 LINE Pay 申請 sandbox 帳戶後取得
-LINEPAY_CHANNEL_ID=your_channel_id
-LINEPAY_CHANNEL_SECRET=your_channel_secret
-```
-
-> OrderService 自此不需要任何內部 secret — 對 ProductService 的呼叫一律走 Gateway (`/internal/**`)，由 Gateway 簽發 JWT。
-
-**ProductService**：
-```
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=ecommerce
-DB_USERNAME=postgres
-DB_PASSWORD=your_db_password
-
-# 驗證 Gateway 簽發的內部 JWT；須與 Gateway 填相同值
-GATEWAY_INTERNAL_JWT_SECRET=your_gateway_internal_jwt_secret
-```
-
-4. 在本機建立資料庫並執行 SQL 腳本
-
-專案已將 PostgreSQL 用的腳本放在 `db-script/postgres/`（`01-create-tables.sql`, `02-insert-sample-data.sql`）。推薦使用 `psql`（或 pgAdmin）執行。
-
-5. [申請 LINE Pay sandbox 帳戶取得 Channel ID 和 Channel Secret](https://pay.line.me/th/developers/main/main)，填入上方 `OrderService` 的 `env.properties`。
